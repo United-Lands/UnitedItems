@@ -644,6 +644,12 @@ public class ItemDetector implements Listener {
         Block above = clickedBlock.getRelative(0, 1, 0);
         if (!above.getType().equals(Material.AIR)) return false;
 
+        Biome biome = above.getBiome();
+        if (!crop.canGrowInBiome(biome)) {
+            event.setCancelled(true);
+            return false;
+        }
+
         crop.placeCrop(above.getLocation(), 1);
         dataManager.addCrop(above.getLocation(), crop, 1);
         above.getWorld().playSound(above.getLocation(), org.bukkit.Sound.ITEM_CROP_PLANT, 1.0f, 1.0f);
