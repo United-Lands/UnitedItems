@@ -114,21 +114,23 @@ public class ItemDetector implements Listener {
         dataManager.loadSaplings(saplingSets);
         dataManager.loadCrops(cropSets);
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> log("Saplings in memory after load: " + dataManager.getSaplingCount()), 100L);
-        Bukkit.getScheduler().runTaskLater(plugin, () -> log("Crops in memory after load: " + dataManager.getCropCount()), 100L);
+        Bukkit.getScheduler().runTaskLater(plugin,
+                () -> log("Saplings in memory after load: " + dataManager.getSaplingCount()), 100L);
+        Bukkit.getScheduler().runTaskLater(plugin,
+                () -> log("Crops in memory after load: " + dataManager.getCropCount()), 100L);
 
     }
 
     /*
-
-    #####################################################
-    # +-----------------------------------------------+ #
-    # |                Armour Handling                | #
-    # +-----------------------------------------------+ #
-    #####################################################
-
-    This section contains all methods and events related to armour handling.
-
+     * 
+     * #####################################################
+     * # +-----------------------------------------------+ #
+     * # | Armour Handling | #
+     * # +-----------------------------------------------+ #
+     * #####################################################
+     * 
+     * This section contains all methods and events related to armour handling.
+     * 
      */
 
     // Detect if the player is wearing a full set of a registered armour.
@@ -150,7 +152,8 @@ public class ItemDetector implements Listener {
     }
 
     // Check if all pieces of the set match the given setId.
-    private boolean isFullSet(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots, String setId) {
+    private boolean isFullSet(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots,
+            String setId) {
         return isCustomArmourPiece(helmet, setId) &&
                 isCustomArmourPiece(chestplate, setId) &&
                 isCustomArmourPiece(leggings, setId) &&
@@ -236,7 +239,8 @@ public class ItemDetector implements Listener {
     // Check if the armour has broken when taking damage.
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player player) {
-            Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfWearingArmor(player));
+            Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                    () -> applyEffectsIfWearingArmor(player));
         }
     }
 
@@ -245,19 +249,21 @@ public class ItemDetector implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         detectArmourSet(player);
-        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> removeAllEffects(player));
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                () -> removeAllEffects(player));
     }
 
     /*
-
-    ###################################################
-    # +---------------------------------------------+ #
-    # |                Tool Handling                | #
-    # +---------------------------------------------+ #
-    ###################################################
-
-    This section contains all methods and events related to tool and weapon handling.
-
+     * 
+     * ###################################################
+     * # +---------------------------------------------+ #
+     * # | Tool Handling | #
+     * # +---------------------------------------------+ #
+     * ###################################################
+     * 
+     * This section contains all methods and events related to tool and weapon
+     * handling.
+     * 
      */
 
     // Detect if the player is holding a registered tool.
@@ -354,7 +360,8 @@ public class ItemDetector implements Listener {
     // Checks when a player switches their held item.
     public void onPlayerItemHeld(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfHoldingTool(player));
+        Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                () -> applyEffectsIfHoldingTool(player));
     }
 
     @EventHandler
@@ -367,7 +374,8 @@ public class ItemDetector implements Listener {
             if (isCustomTool(droppedItem, toolId)) {
                 // If the dropped item is a registered tool, remove its effects.
                 Bukkit.getScheduler().runTask(
-                        Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> removeToolEffects(player));
+                        Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                        () -> removeToolEffects(player));
                 break; // Stop checking further since the tool has been identified.
             }
         }
@@ -384,7 +392,9 @@ public class ItemDetector implements Listener {
                 String toolId = entry.getKey();
                 if (isCustomTool(pickedUpItem, toolId)) {
                     // If the picked up item is a registered tool, apply its effects.
-                    Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> applyEffectsIfHoldingTool(player));
+                    Bukkit.getScheduler().runTask(
+                            Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                            () -> applyEffectsIfHoldingTool(player));
                     break; // Stop checking further since the tool has been identified.
                 }
             }
@@ -392,20 +402,21 @@ public class ItemDetector implements Listener {
     }
 
     /*
-
-    ###################################################
-    # +---------------------------------------------+ #
-    # |                Tree Handling                | #
-    # +---------------------------------------------+ #
-    ###################################################
-
-    This section contains all methods and events related to trees and saplings.
-
+     * 
+     * ###################################################
+     * # +---------------------------------------------+ #
+     * # | Tree Handling | #
+     * # +---------------------------------------------+ #
+     * ###################################################
+     * 
+     * This section contains all methods and events related to trees and saplings.
+     * 
      */
 
     // Detect if a held item is a custom sapling.
     public CustomSapling detectSapling(ItemStack item) {
-        if (item == null || item.getType() == Material.AIR) return null;
+        if (item == null || item.getType() == Material.AIR)
+            return null;
         CustomStack customStack = CustomStack.byItemStack(item);
         return (customStack != null) ? saplingSets.get(customStack.getId().toLowerCase()) : null;
     }
@@ -426,7 +437,10 @@ public class ItemDetector implements Listener {
         if (playerHasPermissions(event.getPlayer(), clickedBlock))
             return false;
 
-        if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT || clickedBlock.getType() == Material.PODZOL || clickedBlock.getType() == Material.SHORT_GRASS || clickedBlock.getType() == Material.TALL_GRASS || clickedBlock.getType() == Material.DEAD_BUSH || clickedBlock.getType() == Material.SNOW)) {
+        if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT
+                || clickedBlock.getType() == Material.PODZOL || clickedBlock.getType() == Material.SHORT_GRASS
+                || clickedBlock.getType() == Material.TALL_GRASS || clickedBlock.getType() == Material.DEAD_BUSH
+                || clickedBlock.getType() == Material.SNOW)) {
             return false;
         }
 
@@ -440,7 +454,9 @@ public class ItemDetector implements Listener {
         }
 
         // Ensure sapling can only be planted on valid ground.
-        if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT || clickedBlock.getType() == Material.PODZOL)) {            return false;
+        if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT
+                || clickedBlock.getType() == Material.PODZOL)) {
+            return false;
         }
 
         Biome biome = clickedBlock.getBiome();
@@ -488,8 +504,9 @@ public class ItemDetector implements Listener {
                 // Create the stem.
                 if (blockMaterial.toString().endsWith("_LOG")) {
                     if (sapling.isUsingVanillaStem()) {
-                        Bukkit.getScheduler().runTaskLater(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () ->
-                                blockLocation.getBlock().setType(sapling.getStemBlock()), 5L);
+                        Bukkit.getScheduler().runTaskLater(
+                                Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                                () -> blockLocation.getBlock().setType(sapling.getStemBlock()), 5L);
                     } else if (sapling.getStemReplaceBlockName() != null) {
                         CustomBlock placedBlock = CustomBlock.place(sapling.getStemReplaceBlockName(), blockLocation);
                         if (placedBlock == null) {
@@ -502,14 +519,14 @@ public class ItemDetector implements Listener {
                 else if (block.getType() == Material.OAK_LEAVES || block.getType() == Material.JUNGLE_LEAVES) {
                     if (sapling.getCustomLeavesName() != null) {
                         blockLocation.getBlock().setType(Material.AIR);
-                        String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName() : sapling.getCustomLeavesName();
+                        String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName()
+                                : sapling.getCustomLeavesName();
                         CustomBlock.place(leafType, blockLocation);
                     }
                 }
             }
         }
     }
-
 
     @EventHandler
     // Handle custom tree leaf decay.
@@ -540,23 +557,25 @@ public class ItemDetector implements Listener {
     }
 
     /*
-
-    ###################################################
-    # +---------------------------------------------+ #
-    # |                Crop Handling                | #
-    # +---------------------------------------------+ #
-    ###################################################
-
-    This section contains all methods and events related to crop handling.
-
+     * 
+     * ###################################################
+     * # +---------------------------------------------+ #
+     * # | Crop Handling | #
+     * # +---------------------------------------------+ #
+     * ###################################################
+     * 
+     * This section contains all methods and events related to crop handling.
+     * 
      */
 
     // Detect if a crop is custom and what it is.
     public CustomCrop detectCrop(ItemStack item) {
-        if (item == null || item.getType() == Material.AIR) return null;
+        if (item == null || item.getType() == Material.AIR)
+            return null;
         CustomStack customStack = CustomStack.byItemStack(item);
 
-        if (customStack == null) return null;
+        if (customStack == null)
+            return null;
 
         // Check if item is a seed instead of a fully-grown crop.
         for (CustomCrop crop : cropSets.values()) {
@@ -579,10 +598,12 @@ public class ItemDetector implements Listener {
             }
         }
 
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return false;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
+            return false;
 
         Block clickedBlock = event.getClickedBlock();
-        if (clickedBlock == null) return false;
+        if (clickedBlock == null)
+            return false;
 
         Location loc = clickedBlock.getLocation();
 
@@ -590,6 +611,12 @@ public class ItemDetector implements Listener {
         if (dataManager.hasCrop(loc)) {
             CustomCrop growingCrop = dataManager.getCrop(loc);
             int growthStage = dataManager.getCropStage(loc);
+
+            // If the player is not in an area with sufficient permissions, cancel.
+            if (playerHasPermissions(event.getPlayer(), clickedBlock)) {
+                event.setCancelled(true);
+                return true;
+            }
 
             // If the crop is fully grown but persistent harvest is disabled,
             // cancel the event immediately so nothing happens.
@@ -608,12 +635,14 @@ public class ItemDetector implements Listener {
                     growingCrop.placeCrop(loc, newStage);
                     dataManager.updateCropStage(loc, newStage);
                     heldItem.setAmount(heldItem.getAmount() - 1);
-                    loc.getWorld().spawnParticle(org.bukkit.Particle.HAPPY_VILLAGER, loc.clone().add(0.5, 0.5, 0.5), 10, 0.3, 0.3, 0.3);
+                    loc.getWorld().spawnParticle(org.bukkit.Particle.HAPPY_VILLAGER, loc.clone().add(0.5, 0.5, 0.5), 10,
+                            0.3, 0.3, 0.3);
                     loc.getWorld().playSound(loc, org.bukkit.Sound.ITEM_BONE_MEAL_USE, 1.0f, 1.0f);
                     event.setCancelled(true);
                     return true;
                 }
-                // If bonemeal is applied on a fully grown crop and persistent harvest is enabled, harvest it.
+                // If bonemeal is applied on a fully grown crop and persistent harvest is
+                // enabled, harvest it.
                 if (growthStage == growingCrop.getMaxGrowthStage() && growingCrop.canBeHarvestedWithoutBreaking()) {
                     growingCrop.harvestWithoutBreaking(loc, event.getPlayer(), dataManager);
                     growingCrop.placeCrop(loc, 1);
@@ -625,7 +654,8 @@ public class ItemDetector implements Listener {
                 }
             }
 
-            // If not holding bonemeal and the crop is fully grown and harvestable, process harvest.
+            // If not holding bonemeal and the crop is fully grown and harvestable, process
+            // harvest.
             if (growthStage == growingCrop.getMaxGrowthStage() && growingCrop.canBeHarvestedWithoutBreaking()) {
                 growingCrop.harvestWithoutBreaking(loc, event.getPlayer(), dataManager);
                 growingCrop.placeCrop(loc, 1);
@@ -638,11 +668,14 @@ public class ItemDetector implements Listener {
 
         // Handle planting new crops.
         CustomCrop crop = detectCrop(event.getItem());
-        if (crop == null) return false;
+        if (crop == null)
+            return false;
 
-        if (!crop.canBePlantedOn(clickedBlock.getType())) return false;
+        if (!crop.canBePlantedOn(clickedBlock.getType()))
+            return false;
         Block above = clickedBlock.getRelative(0, 1, 0);
-        if (!above.getType().equals(Material.AIR)) return false;
+        if (!above.getType().equals(Material.AIR))
+            return false;
 
         Biome biome = above.getBiome();
         if (!crop.canGrowInBiome(biome)) {
@@ -664,7 +697,8 @@ public class ItemDetector implements Listener {
     // Handle breaking crops.
     public void onCropBreak(BlockBreakEvent event) {
         Location loc = event.getBlock().getLocation();
-        if (!dataManager.hasCrop(loc)) return;
+        if (!dataManager.hasCrop(loc))
+            return;
         Player player = event.getPlayer();
         CustomCrop crop = dataManager.getCrop(loc);
         int growthStage = dataManager.getCropStage(loc);
@@ -681,7 +715,8 @@ public class ItemDetector implements Listener {
     }
 
     @EventHandler
-    // Stops dry farmland from turning to dirt if not hydrated, mimicking vanilla behaviour.
+    // Stops dry farmland from turning to dirt if not hydrated, mimicking vanilla
+    // behaviour.
     public void onFarmlandDry(BlockFadeEvent event) {
         // Check if the block that is about to fade is farmland.
         if (event.getBlock().getType() == Material.FARMLAND) {
@@ -694,15 +729,16 @@ public class ItemDetector implements Listener {
     }
 
     /*
-
-    ######################################################
-    # +------------------------------------------------+ #
-    # |                General Handling                | #
-    # +------------------------------------------------+ #
-    ######################################################
-
-    This section contains all methods and events that are not specific to one category.
-
+     * 
+     * ######################################################
+     * # +------------------------------------------------+ #
+     * # | General Handling | #
+     * # +------------------------------------------------+ #
+     * ######################################################
+     * 
+     * This section contains all methods and events that are not specific to one
+     * category.
+     * 
      */
 
     public void saveData() {
@@ -751,7 +787,8 @@ public class ItemDetector implements Listener {
                     // Only check further in non-ruined towns
                     if (!town.isRuined()) {
                         // If player is not in their own town, check the trust list
-                        if (!resident.hasTown() || (resident.hasTown() && !Objects.equals(resident.getTownOrNull(), town))) {
+                        if (!resident.hasTown()
+                                || (resident.hasTown() && !Objects.equals(resident.getTownOrNull(), town))) {
                             var trustList = town.getTrustedResidents();
                             if (!trustList.contains(resident)) {
                                 return true;
