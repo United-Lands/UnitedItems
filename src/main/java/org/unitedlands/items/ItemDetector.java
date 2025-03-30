@@ -542,6 +542,10 @@ public class ItemDetector implements Listener {
     // Remove blocks from the map if they're broken.
     public void onTreeBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
+        // Ignore Admins
+        if (player.isOp() || player.hasPermission("group.admin")) {
+            return;
+        }
         // If the block is being broken by a player without permissions, cancel the event.
         if (playerHasPermissions(player, event.getBlock())) {
             event.setCancelled(true);
