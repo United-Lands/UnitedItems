@@ -541,6 +541,12 @@ public class ItemDetector implements Listener {
     @EventHandler
     // Remove blocks from the map if they're broken.
     public void onTreeBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        // If the block is being broken by a player without permissions, cancel the event.
+        if (playerHasPermissions(player, event.getBlock())) {
+            event.setCancelled(true);
+            return;
+        }
         Location loc = event.getBlock().getLocation();
         if (dataManager.hasSapling(loc)) {
             // Retrieve the custom sapling registered at this location.
