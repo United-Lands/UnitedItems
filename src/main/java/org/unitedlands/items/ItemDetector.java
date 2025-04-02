@@ -78,6 +78,7 @@ public class ItemDetector implements Listener {
         toolSets.put("gamemaster", new GamemasterTools(plugin, config));
         toolSets.put("amethyst", new AmethystPickaxe());
         toolSets.put("barkbinder", new BarkbinderAxe(plugin));
+        toolSets.put("gingerbread", new GingerbreadTools());
 
         saplingSets.put("ancient_oak_sapling", new AncientOak());
         saplingSets.put("avocado_sapling", new Avocado());
