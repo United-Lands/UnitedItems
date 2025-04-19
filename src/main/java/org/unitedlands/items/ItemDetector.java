@@ -543,17 +543,18 @@ public class ItemDetector implements Listener {
     // Remove blocks from the map if they're broken.
     public void onTreeBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
-        // Ignore Admins
-        if (player.isOp() || player.hasPermission("group.admin")) {
-            return;
-        }
-        // If the block is being broken by a player without permissions, cancel the event.
-        if (playerHasPermissions(player, event.getBlock())) {
-            event.setCancelled(true);
-            return;
-        }
         Location loc = event.getBlock().getLocation();
         if (dataManager.hasSapling(loc)) {
+            // Ignore Admins
+            if (player.isOp() || player.hasPermission("group.admin")) {
+                return;
+            }
+            // If the block is being broken by a player without permissions, cancel the
+            // event.
+            if (playerHasPermissions(player, event.getBlock())) {
+                event.setCancelled(true);
+                return;
+            }
             // Retrieve the custom sapling registered at this location.
             CustomSapling sapling = dataManager.getSapling(loc);
             // Prevent the default vanilla sapling drop.
@@ -801,6 +802,14 @@ public class ItemDetector implements Listener {
                         if (!resident.hasTown()
                                 || (resident.hasTown() && !Objects.equals(resident.getTownOrNull(), town))) {
                             var trustList = town.getTrustedResidents();
+                            if (!trustList.contains(resident)) {
+                                return true;
+                            }
+                        }
+                        var plot = towny.getTownBlock(location);
+                        if (plot != null)
+                        {
+                            var trustList = plot.getTrustedResidents();
                             if (!trustList.contains(resident)) {
                                 return true;
                             }
