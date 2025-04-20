@@ -435,7 +435,7 @@ public class ItemDetector implements Listener {
 
         Block clickedBlock = event.getClickedBlock();
 
-        if (playerHasPermissions(event.getPlayer(), clickedBlock))
+        if (!playerHasPermissions(event.getPlayer(), clickedBlock))
             return false;
 
         if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT
@@ -551,7 +551,7 @@ public class ItemDetector implements Listener {
             }
             // If the block is being broken by a player without permissions, cancel the
             // event.
-            if (playerHasPermissions(player, event.getBlock())) {
+            if (!playerHasPermissions(player, event.getBlock())) {
                 event.setCancelled(true);
                 return;
             }
@@ -625,7 +625,7 @@ public class ItemDetector implements Listener {
             int growthStage = dataManager.getCropStage(loc);
 
             // If the player is not in an area with sufficient permissions, cancel.
-            if (playerHasPermissions(event.getPlayer(), clickedBlock)) {
+            if (!playerHasPermissions(event.getPlayer(), clickedBlock)) {
                 event.setCancelled(true);
                 return true;
             }
@@ -771,7 +771,7 @@ public class ItemDetector implements Listener {
         Player player = event.getPlayer();
         CustomTool tool = detectTool(player);
         if (tool != null) {
-            if (playerHasPermissions(player, event.getClickedBlock()))
+            if (!playerHasPermissions(player, event.getClickedBlock()))
                 return;
             tool.handleInteract(player, event);
         }
@@ -798,20 +798,18 @@ public class ItemDetector implements Listener {
                 if (town != null && resident != null) {
                     // Only check further in non-ruined towns
                     if (!town.isRuined()) {
-                        // If player is not in their own town, check the trust list
-                        if (!resident.hasTown()
-                                || (resident.hasTown() && !Objects.equals(resident.getTownOrNull(), town))) {
+                        // If player is not in their own town, check the trust lists
+                        if (!resident.hasTown() || (resident.hasTown() && !Objects.equals(resident.getTownOrNull(), town))) {
                             var trustList = town.getTrustedResidents();
-                            if (!trustList.contains(resident)) {
+                            if (trustList.contains(resident)) {
                                 return true;
                             }
-                        }
-                        var plot = towny.getTownBlock(location);
-                        if (plot != null)
-                        {
-                            var trustList = plot.getTrustedResidents();
-                            if (!trustList.contains(resident)) {
-                                return true;
+                            var plot = towny.getTownBlock(location);
+                            if (plot != null) {
+                                var plotTrustList = plot.getTrustedResidents();
+                                if (plotTrustList.contains(resident)) {
+                                    return true;
+                                }
                             }
                         }
                     }
@@ -825,12 +823,12 @@ public class ItemDetector implements Listener {
 
         // Check if the player is allowed to bypass WorldGuard protection in this world.
         if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld()))
-            return false;
+            return true;
 
         var loc = BukkitAdapter.adapt(block.getLocation());
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery query = container.createQuery();
 
-        return !query.testState(loc, localPlayer, Flags.BUILD);
+        return query.testState(loc, localPlayer, Flags.BUILD);
     }
 }
