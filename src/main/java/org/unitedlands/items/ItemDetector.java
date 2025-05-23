@@ -3,6 +3,9 @@ package org.unitedlands.items;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlock;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
@@ -435,7 +438,7 @@ public class ItemDetector implements Listener {
 
         Block clickedBlock = event.getClickedBlock();
 
-        if (playerHasPermissions(event.getPlayer(), clickedBlock))
+        if (!playerHasPermissions(event.getPlayer(), clickedBlock))
             return false;
 
         if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT
@@ -526,6 +529,9 @@ public class ItemDetector implements Listener {
                     }
                 }
             }
+
+            // Remove the sapling after the tree has grown
+            dataManager.removeSapling(location);
         }
     }
 
@@ -545,13 +551,9 @@ public class ItemDetector implements Listener {
         Player player = event.getPlayer();
         Location loc = event.getBlock().getLocation();
         if (dataManager.hasSapling(loc)) {
-            // Ignore Admins
-            if (player.isOp() || player.hasPermission("group.admin")) {
-                return;
-            }
             // If the block is being broken by a player without permissions, cancel the
             // event.
-            if (playerHasPermissions(player, event.getBlock())) {
+            if (!playerHasPermissions(player, event.getBlock())) {
                 event.setCancelled(true);
                 return;
             }
@@ -625,7 +627,7 @@ public class ItemDetector implements Listener {
             int growthStage = dataManager.getCropStage(loc);
 
             // If the player is not in an area with sufficient permissions, cancel.
-            if (playerHasPermissions(event.getPlayer(), clickedBlock)) {
+            if (!playerHasPermissions(event.getPlayer(), clickedBlock)) {
                 event.setCancelled(true);
                 return true;
             }
@@ -771,7 +773,7 @@ public class ItemDetector implements Listener {
         Player player = event.getPlayer();
         CustomTool tool = detectTool(player);
         if (tool != null) {
-            if (playerHasPermissions(player, event.getClickedBlock()))
+            if (!playerHasPermissions(player, event.getClickedBlock()))
                 return;
             tool.handleInteract(player, event);
         }
@@ -780,57 +782,47 @@ public class ItemDetector implements Listener {
     // Checks if a tool interaction is in a location where the player should not be
     // allowed to interact.
     private boolean playerHasPermissions(Player player, Block block) {
-
         if (block == null)
             return true;
 
-        // TOWNY CHECKS
+        Location location = block.getLocation();
+        TownyAPI towny = TownyAPI.getInstance();
 
-        // Actions are only allowed in the wilderness, the player's own town, or plots
-        // where the player is trusted.
-        var towny = TownyAPI.getInstance();
-        if (towny != null) {
-            var location = block.getLocation();
-            // Action is allowed by default, only perform checks when in a town.
-            if (!towny.isWilderness(location)) {
-                var town = towny.getTown(location);
-                var resident = TownyAPI.getInstance().getResident(player);
-                if (town != null && resident != null) {
-                    // Only check further in non-ruined towns
-                    if (!town.isRuined()) {
-                        // If player is not in their own town, check the trust list
-                        if (!resident.hasTown()
-                                || (resident.hasTown() && !Objects.equals(resident.getTownOrNull(), town))) {
-                            var trustList = town.getTrustedResidents();
-                            if (!trustList.contains(resident)) {
-                                return true;
-                            }
-                        }
-                        var plot = towny.getTownBlock(location);
-                        if (plot != null)
-                        {
-                            var trustList = plot.getTrustedResidents();
-                            if (!trustList.contains(resident)) {
-                                return true;
-                            }
-                        }
+        boolean hasTownyPermissions = true; // default is true unless overridden
+        if (towny != null && !towny.isWilderness(location)) {
+            hasTownyPermissions = false; // now we will evaluate Towny checks
+
+            Town town = towny.getTown(location);
+            Resident resident = towny.getResident(player);
+
+            if (town != null && resident != null) {
+                if (town.isRuined()) {
+                    hasTownyPermissions = true;
+                } else if (resident.hasTown() && town.equals(resident.getTownOrNull())) {
+                    hasTownyPermissions = true;
+                } else if (town.getTrustedResidents().contains(resident)) {
+                    hasTownyPermissions = true;
+                } else {
+                    TownBlock plot = towny.getTownBlock(location);
+                    if (plot != null && plot.getTrustedResidents().contains(resident)) {
+                        hasTownyPermissions = true;
                     }
                 }
             }
         }
 
-        // WORLDGUARD CHECKS
-
+        // WorldGuard check
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
+        boolean hasWorldGuardPermissions;
 
-        // Check if the player is allowed to bypass WorldGuard protection in this world.
-        if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld()))
-            return false;
+        if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld())) {
+            hasWorldGuardPermissions = true;
+        } else {
+            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+            RegionQuery query = container.createQuery();
+            hasWorldGuardPermissions = query.testState(BukkitAdapter.adapt(location), localPlayer, Flags.BUILD);
+        }
 
-        var loc = BukkitAdapter.adapt(block.getLocation());
-        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-        RegionQuery query = container.createQuery();
-
-        return !query.testState(loc, localPlayer, Flags.BUILD);
+        return hasTownyPermissions && hasWorldGuardPermissions;
     }
 }
