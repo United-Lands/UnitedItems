@@ -526,6 +526,9 @@ public class ItemDetector implements Listener {
                     }
                 }
             }
+
+            // Remove the sapling after the tree has grown
+            //dataManager.removeSapling(location);
         }
     }
 
