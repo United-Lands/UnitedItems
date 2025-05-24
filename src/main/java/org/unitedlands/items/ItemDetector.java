@@ -3,6 +3,9 @@ package org.unitedlands.items;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlock;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
@@ -526,6 +529,9 @@ public class ItemDetector implements Listener {
                     }
                 }
             }
+
+            // Remove the sapling after the tree has grown
+            dataManager.removeSapling(location);
         }
     }
 
@@ -545,10 +551,6 @@ public class ItemDetector implements Listener {
         Player player = event.getPlayer();
         Location loc = event.getBlock().getLocation();
         if (dataManager.hasSapling(loc)) {
-            // Ignore Admins
-            if (player.isOp() || player.hasPermission("group.admin")) {
-                return;
-            }
             // If the block is being broken by a player without permissions, cancel the
             // event.
             if (!playerHasPermissions(player, event.getBlock())) {
@@ -780,7 +782,6 @@ public class ItemDetector implements Listener {
     // Checks if a tool interaction is in a location where the player should not be
     // allowed to interact.
     private boolean playerHasPermissions(Player player, Block block) {
-
         if (block == null)
             return true;
 
@@ -817,9 +818,9 @@ public class ItemDetector implements Listener {
             }
         }
 
-        // WORLDGUARD CHECKS
-
+        // WorldGuard check
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
+        boolean hasWorldGuardPermissions;
 
         // Check if the player is allowed to bypass WorldGuard protection in this world.
         if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld()))
