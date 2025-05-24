@@ -785,27 +785,34 @@ public class ItemDetector implements Listener {
         if (block == null)
             return true;
 
-        Location location = block.getLocation();
-        TownyAPI towny = TownyAPI.getInstance();
+        // TOWNY CHECKS
 
-        boolean hasTownyPermissions = true; // default is true unless overridden
-        if (towny != null && !towny.isWilderness(location)) {
-            hasTownyPermissions = false; // now we will evaluate Towny checks
-
-            Town town = towny.getTown(location);
-            Resident resident = towny.getResident(player);
-
-            if (town != null && resident != null) {
-                if (town.isRuined()) {
-                    hasTownyPermissions = true;
-                } else if (resident.hasTown() && town.equals(resident.getTownOrNull())) {
-                    hasTownyPermissions = true;
-                } else if (town.getTrustedResidents().contains(resident)) {
-                    hasTownyPermissions = true;
-                } else {
-                    TownBlock plot = towny.getTownBlock(location);
-                    if (plot != null && plot.getTrustedResidents().contains(resident)) {
-                        hasTownyPermissions = true;
+        // Actions are only allowed in the wilderness, the player's own town, or plots
+        // where the player is trusted.
+        var towny = TownyAPI.getInstance();
+        if (towny != null) {
+            var location = block.getLocation();
+            // Action is allowed by default, only perform checks when in a town.
+            if (!towny.isWilderness(location)) {
+                var town = towny.getTown(location);
+                var resident = TownyAPI.getInstance().getResident(player);
+                if (town != null && resident != null) {
+                    // Only check further in non-ruined towns
+                    if (!town.isRuined()) {
+                        // If player is not in their own town, check the trust lists
+                        if (!resident.hasTown() || (resident.hasTown() && !Objects.equals(resident.getTownOrNull(), town))) {
+                            var trustList = town.getTrustedResidents();
+                            if (trustList.contains(resident)) {
+                                return true;
+                            }
+                            var plot = towny.getTownBlock(location);
+                            if (plot != null) {
+                                var plotTrustList = plot.getTrustedResidents();
+                                if (plotTrustList.contains(resident)) {
+                                    return true;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -815,14 +822,14 @@ public class ItemDetector implements Listener {
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
         boolean hasWorldGuardPermissions;
 
-        if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld())) {
-            hasWorldGuardPermissions = true;
-        } else {
-            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-            RegionQuery query = container.createQuery();
-            hasWorldGuardPermissions = query.testState(BukkitAdapter.adapt(location), localPlayer, Flags.BUILD);
-        }
+        // Check if the player is allowed to bypass WorldGuard protection in this world.
+        if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld()))
+            return true;
 
-        return hasTownyPermissions && hasWorldGuardPermissions;
+        var loc = BukkitAdapter.adapt(block.getLocation());
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionQuery query = container.createQuery();
+
+        return query.testState(loc, localPlayer, Flags.BUILD);
     }
 }
