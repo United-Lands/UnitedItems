@@ -3,9 +3,6 @@ package org.unitedlands.items;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
-import com.palmergames.bukkit.towny.object.TownBlock;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
@@ -820,7 +817,6 @@ public class ItemDetector implements Listener {
 
         // WorldGuard check
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
-        boolean hasWorldGuardPermissions;
 
         // Check if the player is allowed to bypass WorldGuard protection in this world.
         if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld()))
