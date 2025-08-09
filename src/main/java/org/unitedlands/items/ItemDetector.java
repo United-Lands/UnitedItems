@@ -3,6 +3,9 @@ package org.unitedlands.items;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlock;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
@@ -21,8 +24,10 @@ import org.bukkit.block.BlockState;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -41,6 +46,7 @@ import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.*;
@@ -63,14 +69,16 @@ public class ItemDetector implements Listener {
     private final Map<String, CustomCrop> cropSets;
     private static final int ONE_YEAR_TICKS = 630720000;
     private final DataManager dataManager;
+    private final Plugin plugin;
 
     public ItemDetector(Plugin plugin) {
         FileConfiguration config = plugin.getConfig();
-        armourSets = new HashMap<>();
-        toolSets = new HashMap<>();
-        saplingSets = new HashMap<>();
-        cropSets = new HashMap<>();
-        dataManager = new DataManager();
+        this.armourSets = new HashMap<>();
+        this.toolSets = new HashMap<>();
+        this.saplingSets = new HashMap<>();
+        this.cropSets = new HashMap<>();
+        this.dataManager = new DataManager();
+        this.plugin = plugin;
 
         armourSets.put("nutcracker", new NutcrackerArmour());
         armourSets.put("gamemaster", new GamemasterArmour(plugin, config));
@@ -79,6 +87,8 @@ public class ItemDetector implements Listener {
         toolSets.put("amethyst", new AmethystPickaxe());
         toolSets.put("barkbinder", new BarkbinderAxe(plugin));
         toolSets.put("gingerbread", new GingerbreadTools());
+        toolSets.put("architects_wand", new ArchitectsWand(plugin));
+        toolSets.put("telekinetic_wand", new TelekineticWand(plugin));
 
         saplingSets.put("ancient_oak_sapling", new AncientOak());
         saplingSets.put("avocado_sapling", new Avocado());
@@ -435,13 +445,16 @@ public class ItemDetector implements Listener {
 
         Block clickedBlock = event.getClickedBlock();
 
-        if (!playerHasPermissions(event.getPlayer(), clickedBlock))
+        if (!playerHasPermissions(event.getPlayer(), clickedBlock)) {
+            event.setCancelled(true);
             return false;
+        }
 
         if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT
                 || clickedBlock.getType() == Material.PODZOL || clickedBlock.getType() == Material.SHORT_GRASS
                 || clickedBlock.getType() == Material.TALL_GRASS || clickedBlock.getType() == Material.DEAD_BUSH
                 || clickedBlock.getType() == Material.SNOW)) {
+            event.setCancelled(true);
             return false;
         }
 
@@ -457,6 +470,7 @@ public class ItemDetector implements Listener {
         // Ensure sapling can only be planted on valid ground.
         if (!(clickedBlock.getType() == Material.GRASS_BLOCK || clickedBlock.getType() == Material.DIRT
                 || clickedBlock.getType() == Material.PODZOL)) {
+            event.setCancelled(true);
             return false;
         }
 
@@ -468,6 +482,7 @@ public class ItemDetector implements Listener {
 
         Block above = clickedBlock.getRelative(0, 1, 0);
         if (!above.getType().equals(Material.AIR)) {
+            event.setCancelled(true);
             return false;
         }
 
@@ -483,52 +498,69 @@ public class ItemDetector implements Listener {
         return true;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     // Handle tree construction.
     public void onGrow(StructureGrowEvent event) {
+
+        if (event.isCancelled()) {
+            return;
+        }
+
         Location location = event.getLocation().toBlockLocation();
         CustomSapling sapling = dataManager.getSapling(location);
 
         if (sapling != null) {
-            Biome biome = location.getBlock().getBiome();
-            if (!sapling.canGrowInBiome(biome)) {
-                event.setCancelled(true);
-                return;
-            }
 
             event.setCancelled(true); // Stop the vanilla tree from growing.
 
-            for (BlockState block : event.getBlocks()) {
-                Location blockLocation = block.getLocation().toBlockLocation();
-                Material blockMaterial = block.getBlockData().getMaterial();
+            Biome biome = location.getBlock().getBiome();
 
-                // Create the stem.
-                if (blockMaterial.toString().endsWith("_LOG")) {
-                    if (sapling.isUsingVanillaStem()) {
-                        Bukkit.getScheduler().runTaskLater(
-                                Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
-                                () -> blockLocation.getBlock().setType(sapling.getStemBlock()), 5L);
-                    } else if (sapling.getStemReplaceBlockName() != null) {
-                        CustomBlock placedBlock = CustomBlock.place(sapling.getStemReplaceBlockName(), blockLocation);
-                        if (placedBlock == null) {
+            if (!sapling.canGrowInBiome(biome)) {
+                return;
+            }
+        
+            if (event.getBlocks().size() <= 1)
+            {
+                return;
+            }
+
+            // Remove the sapling
+            location.getBlock().setType(Material.AIR);
+            dataManager.removeSapling(location);
+
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+
+                for (BlockState block : event.getBlocks()) {
+
+                    Location blockLocation = block.getLocation().toBlockLocation();
+                    Material blockMaterial = block.getBlockData().getMaterial();
+
+                    // Create the stem.
+                    if (blockMaterial.toString().endsWith("_LOG")) {
+                        if (sapling.isUsingVanillaStem()) {
                             blockLocation.getBlock().setType(sapling.getStemBlock());
+                        } else if (sapling.getStemReplaceBlockName() != null) {
+                            CustomBlock placedBlock = CustomBlock.place(sapling.getStemReplaceBlockName(),
+                                    blockLocation);
+                            if (placedBlock == null) {
+                                blockLocation.getBlock().setType(sapling.getStemBlock());
+                            }
+                        }
+                    }
+
+                    // Create the leaves.
+                    else if (block.getType() == Material.OAK_LEAVES || block.getType() == Material.JUNGLE_LEAVES) {
+                        if (sapling.getCustomLeavesName() != null) {
+                            blockLocation.getBlock().setType(Material.AIR);
+                            String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName()
+                                    : sapling.getCustomLeavesName();
+                            CustomBlock.place(leafType, blockLocation);
                         }
                     }
                 }
 
-                // Create the leaves.
-                else if (block.getType() == Material.OAK_LEAVES || block.getType() == Material.JUNGLE_LEAVES) {
-                    if (sapling.getCustomLeavesName() != null) {
-                        blockLocation.getBlock().setType(Material.AIR);
-                        String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName()
-                                : sapling.getCustomLeavesName();
-                        CustomBlock.place(leafType, blockLocation);
-                    }
-                }
-            }
+            }, 1L);
 
-            // Remove the sapling after the tree has grown
-            dataManager.removeSapling(location);
         }
     }
 
@@ -601,6 +633,7 @@ public class ItemDetector implements Listener {
     // Prioritise event to ensure proper persistent harvesting logic.
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public boolean handleCropInteraction(PlayerInteractEvent event) {
+
         if (event.getHand() == EquipmentSlot.OFF_HAND) {
             // Only process the off-hand if the main hand is empty.
             ItemStack mainHandItem = event.getPlayer().getInventory().getItemInMainHand();
@@ -620,6 +653,7 @@ public class ItemDetector implements Listener {
 
         // If this block is a registered crop...
         if (dataManager.hasCrop(loc)) {
+
             CustomCrop growingCrop = dataManager.getCrop(loc);
             int growthStage = dataManager.getCropStage(loc);
 
@@ -776,56 +810,78 @@ public class ItemDetector implements Listener {
         }
     }
 
-    // Checks if a tool interaction is in a location where the player should not be
-    // allowed to interact.
+    // Checks if a player is allowed to interact with a specific block location.
     private boolean playerHasPermissions(Player player, Block block) {
-        if (block == null)
-            return true;
+        if (block == null) {
+            return true; // If no block is specified, allow interaction.
+        }
 
-        // TOWNY CHECKS
+        Location location = block.getLocation();
 
-        // Actions are only allowed in the wilderness, the player's own town, or plots
-        // where the player is trusted.
-        var towny = TownyAPI.getInstance();
-        if (towny != null) {
-            var location = block.getLocation();
-            // Action is allowed by default, only perform checks when in a town.
-            if (!towny.isWilderness(location)) {
-                var town = towny.getTown(location);
-                var resident = TownyAPI.getInstance().getResident(player);
-                if (town != null && resident != null) {
-                    // Only check further in non-ruined towns
-                    if (!town.isRuined()) {
-                        // If player is not in their own town, check the trust lists
-                        if (!resident.hasTown() || (resident.hasTown() && !Objects.equals(resident.getTownOrNull(), town))) {
-                            var trustList = town.getTrustedResidents();
-                            if (trustList.contains(resident)) {
-                                return true;
-                            }
-                            var plot = towny.getTownBlock(location);
-                            if (plot != null) {
-                                var plotTrustList = plot.getTrustedResidents();
-                                if (plotTrustList.contains(resident)) {
-                                    return true;
-                                }
-                            }
-                        }
+        // ---------------------------
+        // TOWNY PERMISSIONS CHECK
+        // ---------------------------
+        TownyAPI towny = TownyAPI.getInstance();
+        if (towny != null && !towny.isWilderness(location)) {
+            Town town = towny.getTown(location);
+            Resident resident = towny.getResident(player);
+
+            if (town != null && resident != null && !town.isRuined()) {
+                boolean isOwnTown = resident.hasTown() && town.equals(resident.getTownOrNull());
+
+                if (!isOwnTown) {
+                    // Check if player is trusted in the town
+                    if (town.getTrustedResidents().contains(resident)) {
+                        return true;
                     }
+
+                    // Check if player is trusted in the specific plot
+                    TownBlock townBlock = towny.getTownBlock(location);
+                    if (townBlock != null && townBlock.getTrustedResidents().contains(resident)) {
+                        return true;
+                    }
+
+                    return false; // Not trusted in town or plot
                 }
+
+                return true; // It's the player's own town
             }
         }
 
-        // WorldGuard check
+        // ---------------------------
+        // WORLDGUARD PERMISSIONS CHECK
+        // ---------------------------
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
 
-        // Check if the player is allowed to bypass WorldGuard protection in this world.
-        if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld()))
+        // If the player has WorldGuard bypass permission in this world, allow
+        // interaction
+        if (WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, localPlayer.getWorld())) {
             return true;
+        }
 
-        var loc = BukkitAdapter.adapt(block.getLocation());
+        // Check WorldGuard region flags
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery query = container.createQuery();
 
-        return query.testState(loc, localPlayer, Flags.BUILD);
+        return query.testState(BukkitAdapter.adapt(location), localPlayer, Flags.BUILD);
+    }
+
+    public class ListenerInspector {
+
+        public static void printListenersForEvent(Class<? extends Event> eventClass) {
+            try {
+                // Every Event has a static method getHandlerList()
+                HandlerList handlerList = (HandlerList) eventClass.getMethod("getHandlerList").invoke(null);
+
+                for (RegisteredListener listener : handlerList.getRegisteredListeners()) {
+                    Listener pluginListener = listener.getListener();
+                    System.out.println("Listener: " + pluginListener.getClass().getName() +
+                            " | Priority: " + listener.getPriority() +
+                            " | Plugin: " + listener.getPlugin().getName());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

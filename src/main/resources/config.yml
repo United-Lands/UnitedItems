@@ -1,8 +1,65 @@
-    ##############################################
-    # +----------------------------------------+ #
-    # |                Language                | #
-    # +----------------------------------------+ #
-    ##############################################
+##############################################
+# +----------------------------------------+ #
+# |            Item Update List            | #
+# +----------------------------------------+ #
+##############################################
+
+update:
+  "masterwork:masterwork_chestplate": "masterwork:masterwork_chestplate"
+  "masterwork:masterwork_helmet": "masterwork:masterwork_helmet"
+
+##############################################
+# +----------------------------------------+ #
+# |          Item configurations           | #
+# +----------------------------------------+ #
+##############################################
+
+items:
+  architects-wand:
+    CraftStair:
+      - direction
+      - half
+      - stair_shape
+      - waterlogged
+    CraftWall:
+      - wall_height
+      - center
+      - waterlogged
+    CraftFence:
+      - connection
+      - waterlogged
+    CraftIronBars:
+      - connection
+    CraftStainedGlassPane:
+      - connection
+    CraftLever:
+      - direction
+      - attachment
+      - powered
+    CraftTripWireHook:
+      - direction
+      - attached
+      - powered
+    CraftBed:
+      - direction
+      - bed_part
+    CraftBigDripleaf:
+      - dripleaf_tilt
+      - direction
+    CraftButton:
+      - direction
+      - powered
+    CraftTrapDoor:
+      - open
+    CraftDoor:
+      - open
+
+
+##############################################
+# +----------------------------------------+ #
+# |                Language                | #
+# +----------------------------------------+ #
+##############################################
 
 # This section has editable language configurations for plugin messages.
 
