@@ -1,6 +1,8 @@
 package org.unitedlands.items;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.unitedlands.items.commands.UnitedItemsCommands;
+import org.unitedlands.items.commands.UpdateItemCommand;
 
 public class UnitedItems extends JavaPlugin {
 
@@ -11,6 +13,9 @@ public class UnitedItems extends JavaPlugin {
         saveDefaultConfig();
         itemDetector = new ItemDetector(this);
         getServer().getPluginManager().registerEvents(itemDetector, this);
+
+        getCommand("uniteditems").setExecutor(new UnitedItemsCommands(this));
+        getCommand("updateitem").setExecutor(new UpdateItemCommand(this));
     }
 
     @Override

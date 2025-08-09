@@ -5,3 +5,8 @@ api-version: 1.17
 authors: [ Litning11 ]
 contributors: [ Maroon28, Theriel_ ]
 depend: [NBTAPI, Towny, ItemsAdder]
+commands:
+  uniteditems:
+    description: General UnitedItems commands
+  updateitem:
+    description: Updates legacy items to new versions.
