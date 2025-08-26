@@ -37,6 +37,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -89,6 +90,7 @@ public class ItemDetector implements Listener {
         toolSets.put("gingerbread", new GingerbreadTools());
         toolSets.put("architects_wand", new ArchitectsWand(plugin));
         toolSets.put("telekinetic_wand", new TelekineticWand(plugin));
+        toolSets.put("creeper_bow", new CreeperBow(plugin));
 
         saplingSets.put("ancient_oak_sapling", new AncientOak());
         saplingSets.put("avocado_sapling", new Avocado());
@@ -352,6 +354,17 @@ public class ItemDetector implements Listener {
             CustomTool tool = detectTool(player);
             if (tool != null) {
                 tool.handleEntityDamage(player, event);
+            }
+        }
+    }
+
+    @EventHandler
+    // Check projectile launch for use of custom tools.
+    public void handleProjectileLaunch(ProjectileLaunchEvent event) {
+        if (event.getEntity().getShooter() instanceof Player player) {
+            CustomTool tool = detectTool(player);
+            if (tool != null) {
+                tool.handleProjectileLaunch(player, event);
             }
         }
     }

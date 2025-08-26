@@ -2,6 +2,7 @@ package org.unitedlands.items.tools;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -29,5 +30,9 @@ public abstract class CustomTool {
 
     // Handle damage logic for the tool.
     public void handleEntityDamage(Player player, EntityDamageByEntityEvent event) {
+    }
+
+    // Handle projectile logic for the tool.
+    public void handleProjectileLaunch(Player player, ProjectileLaunchEvent event) {
     }
 }
