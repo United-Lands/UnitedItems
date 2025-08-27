@@ -1,6 +1,7 @@
 package org.unitedlands.items;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -91,6 +92,7 @@ public class ItemDetector implements Listener {
         toolSets.put("architects_wand", new ArchitectsWand(plugin));
         toolSets.put("telekinetic_wand", new TelekineticWand(plugin));
         toolSets.put("creeper_bow", new CreeperBow(plugin));
+        toolSets.put("creeper_rocket", new CreeperRocket(plugin));
 
         saplingSets.put("ancient_oak_sapling", new AncientOak());
         saplingSets.put("avocado_sapling", new Avocado());
@@ -370,6 +372,15 @@ public class ItemDetector implements Listener {
     }
 
     @EventHandler
+    // Check projectile launch for use of custom tools.
+    public void handyleElytraBoost(PlayerElytraBoostEvent event) {
+        CustomTool tool = detectTool(event.getPlayer());
+        if (tool != null) {
+            tool.handleElytraBoost(event.getPlayer(), event);
+        }
+    }
+
+    @EventHandler
     // Check if tools has been moved when interacting with the inventory.
     public void onInventoryClick(InventoryClickEvent event) {
         Bukkit.getScheduler().runTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
@@ -531,9 +542,8 @@ public class ItemDetector implements Listener {
             if (!sapling.canGrowInBiome(biome)) {
                 return;
             }
-        
-            if (event.getBlocks().size() <= 1)
-            {
+
+            if (event.getBlocks().size() <= 1) {
                 return;
             }
 

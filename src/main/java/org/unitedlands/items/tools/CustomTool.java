@@ -5,6 +5,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffectType;
+
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
+
 import org.bukkit.event.block.BlockBreakEvent;
 
 import java.util.Collections;
@@ -34,5 +37,9 @@ public abstract class CustomTool {
 
     // Handle projectile logic for the tool.
     public void handleProjectileLaunch(Player player, ProjectileLaunchEvent event) {
+    }
+
+    // Handle elytra boosting for the tool.
+    public void handleElytraBoost(Player player, PlayerElytraBoostEvent event) {
     }
 }
