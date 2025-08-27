@@ -76,6 +76,10 @@ public class CreeperRocket extends CustomTool {
 
         event.setCancelled(true);
 
+        var refillItemId = plugin.getConfig().getString("items.creeper_rocket.refill-item");
+        if (refillItemId == null)
+            return;
+
         var inv = player.getInventory();
         Integer index = null;
 
@@ -83,7 +87,7 @@ public class CreeperRocket extends CustomTool {
             var item = inv.getItem(i);
             var customStack = CustomStack.byItemStack(item);
             if (customStack != null) {
-                if (customStack.getNamespacedID().equals("mothertree:charged_gunpowder")) {
+                if (customStack.getNamespacedID().equals(refillItemId)) {
                     index = i;
                     break;
                 }
