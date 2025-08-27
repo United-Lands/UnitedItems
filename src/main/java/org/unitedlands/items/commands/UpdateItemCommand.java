@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.unitedlands.items.UnitedItems;
 
 import dev.lone.itemsadder.api.CustomStack;
-import dev.lone.itemsadder.api.ItemsAdder;
 
 public class UpdateItemCommand implements CommandExecutor {
 
