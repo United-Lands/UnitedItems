@@ -8,6 +8,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ArmorMeta;
+import org.bukkit.inventory.meta.Damageable;
 import org.jetbrains.annotations.NotNull;
 import org.unitedlands.items.UnitedItems;
 
@@ -67,6 +68,7 @@ public class UpdateItemCommand implements CommandExecutor {
             newItemMeta.displayName(oldItemMeta.displayName());
             newItem.setItemMeta(newItemMeta);
 
+
             // Enchantments
             if (oldItemMeta.hasEnchants()) {
                 player.sendMessage("§7Adding enchants...");
@@ -77,6 +79,17 @@ public class UpdateItemCommand implements CommandExecutor {
                     newItemMeta.addEnchant(enchantSet.getKey(), enchantSet.getValue(), true);
                 }
                 newItem.setItemMeta(newItemMeta);
+            }
+
+            // Damage
+            if (oldItemMeta instanceof Damageable oldDamageableMeta) {
+
+                player.sendMessage("§7Applying damage...");
+                var damage = oldDamageableMeta.getDamage();
+
+                var newDamageable = (Damageable) newItemMeta;
+                newDamageable.setDamage(damage);
+                newItem.setItemMeta(newDamageable);
             }
 
             // Armor trims

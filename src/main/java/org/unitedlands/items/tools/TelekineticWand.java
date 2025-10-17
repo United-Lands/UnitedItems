@@ -60,6 +60,12 @@ public class TelekineticWand extends CustomTool implements Listener {
                 return;
             }
 
+            if (!copiedBlock.getChunk().equals(targetBlock.getChunk())) {
+                player.sendActionBar(
+                        Component.text("§cThe target space must be in the same chunk as the source block."));
+                return;
+            }
+
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
 
                 targetBlock.setType(copiedBlock.getType(), false);
