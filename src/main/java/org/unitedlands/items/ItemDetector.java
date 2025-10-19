@@ -533,7 +533,46 @@ public class ItemDetector implements Listener {
         Location location = event.getLocation().toBlockLocation();
         CustomSapling sapling = dataManager.getSapling(location);
 
-        if (sapling != null) {
+        // Additional checks for jungle saplings, prevents mixed-sapling use to make big tree exploit.
+        if (location.getBlock().getType() == Material.JUNGLE_SAPLING) {
+            // Look for any 2×2 square that includes this location.
+            int[] offs = {0, -1};
+            for (int dx : offs) for (int dz : offs) {
+                Location base = location.clone().add(dx, 0, dz);
+                Block b00 = base.getBlock();
+                Block b10 = base.clone().add(1, 0, 0).getBlock();
+                Block b01 = base.clone().add(0, 0, 1).getBlock();
+                Block b11 = base.clone().add(1, 0, 1).getBlock();
+
+                boolean isBigJungle =
+                        b00.getType() == Material.JUNGLE_SAPLING &&
+                                b10.getType() == Material.JUNGLE_SAPLING &&
+                                b01.getType() == Material.JUNGLE_SAPLING &&
+                                b11.getType() == Material.JUNGLE_SAPLING;
+
+                if (isBigJungle) {
+                    // Check what custom saplings were recorded at those positions.
+                    CustomSapling s00 = dataManager.getSapling(b00.getLocation());
+                    CustomSapling s10 = dataManager.getSapling(b10.getLocation());
+                    CustomSapling s01 = dataManager.getSapling(b01.getLocation());
+                    CustomSapling s11 = dataManager.getSapling(b11.getLocation());
+
+                    boolean anyCustom = s00 != null || s10 != null || s01 != null || s11 != null;
+                    boolean allCustom = s00 != null && s10 != null && s01 != null && s11 != null;
+                    boolean sameId = allCustom &&
+                            s00.getId().equalsIgnoreCase(s10.getId()) &&
+                            s00.getId().equalsIgnoreCase(s01.getId()) &&
+                            s00.getId().equalsIgnoreCase(s11.getId());
+
+                    if (anyCustom && !sameId) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+            }
+        }
+
+            if (sapling != null) {
 
             event.setCancelled(true); // Stop the vanilla tree from growing.
 
