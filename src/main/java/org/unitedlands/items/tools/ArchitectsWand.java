@@ -16,6 +16,7 @@ import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.FaceAttachable;
+import org.bukkit.block.data.Hangable;
 import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.Powerable;
@@ -190,6 +191,13 @@ public class ArchitectsWand extends CustomTool implements Listener {
                             Attachable.class,
                             Attachable::isAttached,
                             Attachable::setAttached);
+                    break;
+                case "hanging":
+                    BoolBlockDataToggler.setData(
+                            block,
+                            Hangable.class,
+                            Hangable::isHanging,
+                            Hangable::setHanging);
                     break;
             }
 
