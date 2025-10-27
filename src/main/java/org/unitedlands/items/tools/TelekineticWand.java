@@ -42,8 +42,12 @@ public class TelekineticWand extends CustomTool implements Listener {
         Block sourceBlock = event.getClickedBlock();
 
         if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+            if (isBlacklisted(sourceBlock)) {
+                player.sendActionBar(Component.text("§cThis block type can't be moved."));
+                return;
+            }
             playerCopyCache.put(player.getUniqueId(), sourceBlock);
-            player.sendActionBar(Component.text("Block copied, ready to paste with right click."));
+            player.sendActionBar(Component.text("Block selected, ready to move with right click."));
 
         } else if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 
@@ -51,6 +55,11 @@ public class TelekineticWand extends CustomTool implements Listener {
             if (copiedBlock == null) {
                 player.sendActionBar(
                         Component.text("§cNo source found, select something to copy by left-clicking."));
+                return;
+            }
+
+            if (isBlacklisted(copiedBlock)) {
+                player.sendActionBar(Component.text("§cThis block type can't be moved."));
                 return;
             }
 
@@ -83,11 +92,26 @@ public class TelekineticWand extends CustomTool implements Listener {
                 }
                 copiedBlock.setType(Material.AIR, false);
 
-                player.sendActionBar(Component.text("§2Block successfully transferred."));
+                player.sendActionBar(Component.text("§2Block successfully moved."));
                 playerCopyCache.remove(player.getUniqueId());
 
             }, 1);
 
         }
     }
+
+    private boolean isBlacklisted(Block block) {
+        var blacklist = plugin.getConfig().getStringList("items.telekinetic-wand.blacklist");
+        if (blacklist == null || blacklist.isEmpty())
+            return false;
+
+        var copiedBlockType = block.getType().toString();
+        for (String blEntry : blacklist) {
+            if (copiedBlockType.contains(blEntry)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
