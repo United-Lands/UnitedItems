@@ -56,6 +56,7 @@ import org.unitedlands.items.crops.*;
 import org.unitedlands.items.saplings.*;
 import org.unitedlands.items.tools.*;
 import org.unitedlands.items.util.DataManager;
+import org.unitedlands.items.util.VoucherManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,15 +72,17 @@ public class ItemDetector implements Listener {
     private final Map<String, CustomCrop> cropSets;
     private static final int ONE_YEAR_TICKS = 630720000;
     private final DataManager dataManager;
+    private final VoucherManager voucherManager;
     private final Plugin plugin;
 
-    public ItemDetector(Plugin plugin) {
+    public ItemDetector(Plugin plugin, VoucherManager voucherManager) {
         FileConfiguration config = plugin.getConfig();
         this.armourSets = new HashMap<>();
         this.toolSets = new HashMap<>();
         this.saplingSets = new HashMap<>();
         this.cropSets = new HashMap<>();
         this.dataManager = new DataManager();
+        this.voucherManager = voucherManager;
         this.plugin = plugin;
 
         armourSets.put("nutcracker", new NutcrackerArmour());
@@ -856,10 +859,14 @@ public class ItemDetector implements Listener {
     @EventHandler
     // Check block interactions for use of custom items.
     public void handleInteract(PlayerInteractEvent event) {
-        // Check if it's a sapling first.
+        // Check if it's a voucher first.
+        if (voucherManager.tryRedeem(event)) {
+            return;
+        }
+        // Then check if it's a sapling.
         if (handleSaplingInteraction(event))
             return;
-        // Then check if it's a crop.
+        // Or a crop.
         if (handleCropInteraction(event))
             return;
         // Continue to tool processing.

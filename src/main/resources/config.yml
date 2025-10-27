@@ -78,6 +78,33 @@ items:
 
 ##############################################
 # +----------------------------------------+ #
+# |                Vouchers                | #
+# +----------------------------------------+ #
+##############################################
+
+# Section to edit values related to redeeming voucher items.
+
+vouchers:
+  # What ItemsAdder namespace are the vouchers kept in?
+  namespace: "vouchers"
+  # Item path must start with this (case-insensitive).
+  # For example: vouchers:prefixbear
+  path-prefix: "prefix"
+  # How to build the permission from the derived key, this is what users are assigned after redeeming.
+  # %key% is replaced after normalisation.
+  permission-format: "chatprefix.%key%"
+  # What particle should play when a prefix is successfully redeemed.
+  # Leave empty for no particles.
+  play-particle: "ENCHANT"
+  # What sound should play when a prefix is successfully redeemed.
+  # Leave empty for no sound.
+  success-sound: "entity.experience_orb.pickup"
+  # What sound should play if a prefix is unsuccessfully redeemed.
+  # Leave empty for no sound.
+  fail-sound: "entity.villager.no"
+
+##############################################
+# +----------------------------------------+ #
 # |                Language                | #
 # +----------------------------------------+ #
 ##############################################
@@ -87,3 +114,6 @@ items:
 messages:
   tool-broken: "§c§lU§f§lL §7§lItems §8§l» §cThis tool is broken and needs repair to continue using it."
   armour-broken: "§c§lU§f§lL §7§lItems §8§l» §cThis armour is broken and you will take double damage until it is repaired."
+  voucher-unlocked: "§c§lU§f§lL §7§lItems §8§l» §aVoucher successfully redeemed!"
+  voucher-owned: "§c§lU§f§lL §7§lItems §8§l» §cYou have already redeemed this voucher!"
+  voucher-failed: "§c§lU§f§lL §7§lItems §8§l» §cError with redeeming voucher. Please contact Staff."

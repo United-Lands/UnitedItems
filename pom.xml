@@ -6,7 +6,7 @@
 
     <groupId>org.unitedlands</groupId>
     <artifactId>UnitedItems</artifactId>
-    <version>4.4.7</version>
+    <version>4.5.0</version>
     <packaging>jar</packaging>
 
     <name>UnitedItems</name>
@@ -90,7 +90,7 @@
         <dependency>
             <groupId>org.unitedlands</groupId>
             <artifactId>UnitedSkills</artifactId>
-            <version>3.6.7</version>
+            <version>3.6.11</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -121,6 +121,12 @@
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
             <version>7.0.13</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>5.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
