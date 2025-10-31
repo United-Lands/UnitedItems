@@ -19,6 +19,7 @@ import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -34,30 +35,29 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.*;
 import org.unitedlands.items.crops.*;
+import org.unitedlands.items.potions.CustomPotion;
+import org.unitedlands.items.potions.BlastingLingering;
+import org.unitedlands.items.potions.BlastingRegular;
+import org.unitedlands.items.potions.BlastingSplash;
 import org.unitedlands.items.saplings.*;
 import org.unitedlands.items.tools.*;
 import org.unitedlands.items.util.DataManager;
 import org.unitedlands.items.util.VoucherManager;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -70,6 +70,8 @@ public class ItemDetector implements Listener {
     private final Map<String, CustomTool> toolSets;
     private final Map<String, CustomSapling> saplingSets;
     private final Map<String, CustomCrop> cropSets;
+    private final Map<String, CustomPotion> potionSets = new HashMap<>();
+    private final NamespacedKey POTION_KEY;
     private static final int ONE_YEAR_TICKS = 630720000;
     private final DataManager dataManager;
     private final VoucherManager voucherManager;
@@ -81,6 +83,7 @@ public class ItemDetector implements Listener {
         this.toolSets = new HashMap<>();
         this.saplingSets = new HashMap<>();
         this.cropSets = new HashMap<>();
+        this.POTION_KEY = new NamespacedKey(plugin, "custom_potion_id");
         this.dataManager = new DataManager();
         this.voucherManager = voucherManager;
         this.plugin = plugin;
@@ -128,6 +131,10 @@ public class ItemDetector implements Listener {
         cropSets.put("soybean", new SoyBean());
         cropSets.put("strawberry", new Strawberry());
         cropSets.put("tomato", new Tomato());
+
+        potionSets.put("blasting1", new BlastingRegular());
+        potionSets.put("blasting2", new BlastingSplash());
+        potionSets.put("blasting3", new BlastingLingering(plugin));
 
         dataManager.loadSaplings(saplingSets);
         dataManager.loadCrops(cropSets);
@@ -836,6 +843,102 @@ public class ItemDetector implements Listener {
                 event.setCancelled(true);
             }
         }
+    }
+
+    /*
+     *
+     * ###################################################
+     * # +---------------------------------------------+ #
+     * # | Potion Handling | #
+     * # +---------------------------------------------+ #
+     * ###################################################
+     *
+     * This section contains all methods and events related to custom potions.
+     *
+     */
+
+    @Nullable
+    private CustomPotion detectPotionInHand(Player player) {
+        return detectPotion(player.getInventory().getItemInMainHand());
+    }
+
+    @Nullable
+    private CustomPotion detectPotion(ItemStack item) {
+        String key = findPotionKey(item);
+        return key == null ? null : potionSets.get(key);
+    }
+
+    // Player drinks custom potion.
+    @EventHandler
+    public void onConsume(PlayerItemConsumeEvent event) {
+        var potion = detectPotion(event.getItem());
+        if (potion == null) return;
+
+        var player = event.getPlayer();
+
+        // Then let the class run any custom logic
+        potion.onDrink(player, event.getItem(), event);
+    }
+
+    // Player splashed by custom potion.
+    @EventHandler
+    public void onPotionSplash(PotionSplashEvent event) {
+        if (!(event.getPotion().getShooter() instanceof Player thrower)) return;
+
+        var item = event.getPotion().getItem();
+        var potion = detectPotion(item);
+        if (potion == null) return;
+
+        potion.onSplash(thrower, event);
+    }
+
+    @EventHandler
+    public void onLingeringSplash(LingeringPotionSplashEvent event) {
+        var thrown = event.getEntity();
+        var item = thrown.getItem();
+
+        String key = findPotionKey(item);
+        if (key == null) return;
+
+        var cloud = event.getAreaEffectCloud();
+        cloud.getPersistentDataContainer().set(
+                POTION_KEY,
+                PersistentDataType.STRING,
+                key
+        );
+    }
+
+    // Player effected by lingering cloud.
+    @EventHandler
+    public void onCloudApply(AreaEffectCloudApplyEvent event) {
+        var pdc = event.getEntity().getPersistentDataContainer();
+        String key = pdc.get(POTION_KEY, PersistentDataType.STRING);
+        if (key == null) return;
+
+        CustomPotion potion = potionSets.get(key);
+        if (potion == null) return;
+
+        Player thrower = null;
+        var source = event.getEntity().getSource();
+        if (source instanceof Player p) {
+            thrower = p;
+        }
+        if (thrower == null) return;
+
+        potion.onLingeringCloud(thrower, event.getEntity(), event);
+    }
+
+    // Helper to find registry key that matches an ItemStack
+    @Nullable
+    private String findPotionKey(ItemStack item) {
+        if (item == null || item.getType().isAir()) return null;
+        var cs = CustomStack.byItemStack(item);
+        if (cs == null) return null;
+        var id = cs.getId().toLowerCase();
+        for (var key : potionSets.keySet()) {
+            if (id.contains(key.toLowerCase())) return key;
+        }
+        return null;
     }
 
     /*
