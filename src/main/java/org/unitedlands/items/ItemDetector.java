@@ -30,10 +30,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockFadeEvent;
-import org.bukkit.event.block.LeavesDecayEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
@@ -56,6 +53,7 @@ import org.unitedlands.items.util.VoucherManager;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -827,6 +825,12 @@ public class ItemDetector implements Listener {
         if (crop == null)
             return false;
 
+        // Permissions to plant?
+        if (!playerHasPermissions(event.getPlayer(), clickedBlock)) {
+            event.setCancelled(true);
+            return true;
+        }
+
         if (!crop.canBePlantedOn(clickedBlock.getType()))
             return false;
         Block above = clickedBlock.getRelative(0, 1, 0);
@@ -867,6 +871,40 @@ public class ItemDetector implements Listener {
             // Otherwise, break the crop.
             dataManager.removeCrop(loc);
             loc.getBlock().setType(Material.AIR);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    // Check if entity-made explosions can break crops.
+    public void onEntityExplode(EntityExplodeEvent event) {
+        // Try to see if a player caused this (wind charge, projectile...)
+        Player sourcePlayer = null;
+        if (event.getEntity() instanceof Projectile projectile &&
+                projectile.getShooter() instanceof Player shooter) {
+            sourcePlayer = shooter;
+        }
+
+        // Get all blocks the explosion wants to break
+        Iterator<Block> it = event.blockList().iterator();
+        while (it.hasNext()) {
+            Block b = it.next();
+            Location loc = b.getLocation();
+
+            // See if any are custom crops.
+            if (!dataManager.hasCrop(loc)) {
+                continue;
+            }
+
+            // Safety, if cause is unknown then don't break.
+            if (sourcePlayer == null) {
+                it.remove();
+                continue;
+            }
+
+            // If the player isn't trusted, don't let the explosion break the crop.
+            if (!playerHasPermissions(sourcePlayer, b)) {
+                it.remove();
+            }
         }
     }
 
