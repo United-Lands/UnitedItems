@@ -105,6 +105,59 @@ vouchers:
 
 ##############################################
 # +----------------------------------------+ #
+# |          Custom Potion Config          | #
+# +----------------------------------------+ #
+##############################################
+
+# Here is where you can add new potion variants of VANILLA status effects.
+# See the example block below on how to format the file.
+# Please note that this plugin only supports ItemsAdder as a dependency, and uses their base items to apply effects.
+# See below for a configuration explanation and some examples of potions of hunger.
+
+# custom_potions:                   # Namespace of the item.
+#   custom_drinkable_potion:        # Name of the item.
+#     form: DRINK                   # Potion type, accepts DRINK, SPLASH, LINGERING.
+#     effect: HUNGER                # Potion effect, accepts PotionEffectType from Paper API.
+#     amplifier: 0                  # Severity of potion, 0 is regular strength - higher numbers are stronger.
+#     duration: 24000               # Length of potion effect, in ticks. 20 ticks = 1 second.
+
+potions:
+
+  custom_potions:
+
+    hunger1:
+      form: DRINK
+      effect: HUNGER
+      amplifier: 0
+      duration: 2400
+
+    hunger2:
+      form: DRINK
+      effect: HUNGER
+      amplifier: 1
+      duration: 1200
+
+    hunger3:
+      form: DRINK
+      effect: HUNGER
+      amplifier: 0
+      duration: 4800
+
+    hunger4:
+      form: SPLASH
+      effect: HUNGER
+      amplifier: 0
+      duration: 2400
+
+    hunger5:
+      form: LINGERING
+      effect: HUNGER
+      amplifier: 0
+      duration: 1200
+
+
+##############################################
+# +----------------------------------------+ #
 # |                Language                | #
 # +----------------------------------------+ #
 ##############################################

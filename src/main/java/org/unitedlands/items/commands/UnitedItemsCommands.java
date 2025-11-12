@@ -27,8 +27,9 @@ public class UnitedItemsCommands implements CommandExecutor {
         if (args[0].equalsIgnoreCase("reload"))
         {
             plugin.reloadConfig();
+            plugin.getItemDetector().reloadPotions();
             plugin.getVoucherManager().reload();
-            sender.sendMessage("UnitedItems config reloaded");
+            sender.sendMessage("[UnitedItems] Config file reloaded");
         }
 
         return true;
