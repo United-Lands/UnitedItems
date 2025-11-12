@@ -24,8 +24,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -41,6 +40,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
@@ -48,10 +48,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.armours.*;
 import org.unitedlands.items.crops.*;
-import org.unitedlands.items.potions.CustomPotion;
-import org.unitedlands.items.potions.BlastingLingering;
-import org.unitedlands.items.potions.BlastingRegular;
-import org.unitedlands.items.potions.BlastingSplash;
+import org.unitedlands.items.potions.*;
 import org.unitedlands.items.saplings.*;
 import org.unitedlands.items.tools.*;
 import org.unitedlands.items.util.DataManager;
@@ -135,6 +132,8 @@ public class ItemDetector implements Listener {
         potionSets.put("blasting1", new BlastingRegular());
         potionSets.put("blasting2", new BlastingSplash());
         potionSets.put("blasting3", new BlastingLingering(plugin));
+        var potionBuilder = new VanillaPotionBuilder(plugin);
+        potionSets.putAll(potionBuilder.loadFrom(config));
 
         dataManager.loadSaplings(saplingSets);
         dataManager.loadCrops(cropSets);
@@ -146,16 +145,32 @@ public class ItemDetector implements Listener {
 
     }
 
+    // Reload config of vanilla style potions.
+    private void loadVanillaPotions(FileConfiguration config) {
+        VanillaPotionBuilder builder = new VanillaPotionBuilder(plugin);
+        Map<String, CustomPotion> loaded = builder.loadFrom(config);
+
+        // Remove only previously loaded config potions, ignore hard-coded ones.
+        potionSets.entrySet().removeIf(entry -> entry.getValue() instanceof VanillaPotion);
+
+        potionSets.putAll(loaded);
+        plugin.getLogger().info("Reloaded " + loaded.size() + " vanilla style potions.");
+    }
+
+    public void reloadPotions() {
+        loadVanillaPotions(plugin.getConfig());
+    }
+
     /*
-     * 
+     *
      * #####################################################
      * # +-----------------------------------------------+ #
      * # | Armour Handling | #
      * # +-----------------------------------------------+ #
      * #####################################################
-     * 
+     *
      * This section contains all methods and events related to armour handling.
-     * 
+     *
      */
 
     // Detect if the player is wearing a full set of a registered armour.
@@ -178,7 +193,7 @@ public class ItemDetector implements Listener {
 
     // Check if all pieces of the set match the given setId.
     private boolean isFullSet(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots,
-            String setId) {
+                              String setId) {
         return isCustomArmourPiece(helmet, setId) &&
                 isCustomArmourPiece(chestplate, setId) &&
                 isCustomArmourPiece(leggings, setId) &&
@@ -279,16 +294,16 @@ public class ItemDetector implements Listener {
     }
 
     /*
-     * 
+     *
      * ###################################################
      * # +---------------------------------------------+ #
      * # | Tool Handling | #
      * # +---------------------------------------------+ #
      * ###################################################
-     * 
+     *
      * This section contains all methods and events related to tool and weapon
      * handling.
-     * 
+     *
      */
 
     // Detect if the player is holding a registered tool.
@@ -370,16 +385,39 @@ public class ItemDetector implements Listener {
         }
     }
 
-    @EventHandler
-    // Check projectile launch for use of custom tools.
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void handleProjectileLaunch(ProjectileLaunchEvent event) {
-        if (event.getEntity().getShooter() instanceof Player player) {
-            CustomTool tool = detectTool(player);
-            if (tool != null) {
-                tool.handleProjectileLaunch(player, event);
+        if (!(event.getEntity().getShooter() instanceof Player player)) {
+            return;
+        }
+
+        // Tool logic
+        CustomTool tool = detectTool(player);
+        if (tool != null) {
+            tool.handleProjectileLaunch(player, event);
+        }
+
+        // Tag thrown potions.
+        if (event.getEntity() instanceof ThrownPotion thrown) {
+            // Check main hand first.
+            String key = findPotionKey(player.getInventory().getItemInMainHand());
+
+            // Then offhand.
+            if (key == null) {
+                key = findPotionKey(player.getInventory().getItemInOffHand());
+            }
+
+            // If a custom potion ID is found, store it on the projectile.
+            if (key != null) {
+                thrown.getPersistentDataContainer().set(
+                        POTION_KEY,
+                        PersistentDataType.STRING,
+                        key
+                );
             }
         }
     }
+
 
     @EventHandler
     // Check projectile launch for use of custom tools.
@@ -447,15 +485,15 @@ public class ItemDetector implements Listener {
     }
 
     /*
-     * 
+     *
      * ###################################################
      * # +---------------------------------------------+ #
      * # | Tree Handling | #
      * # +---------------------------------------------+ #
      * ###################################################
-     * 
+     *
      * This section contains all methods and events related to trees and saplings.
-     * 
+     *
      */
 
     // Detect if a held item is a custom sapling.
@@ -547,42 +585,43 @@ public class ItemDetector implements Listener {
         if (location.getBlock().getType() == Material.JUNGLE_SAPLING) {
             // Look for any 2×2 square that includes this location.
             int[] offs = {0, -1};
-            for (int dx : offs) for (int dz : offs) {
-                Location base = location.clone().add(dx, 0, dz);
-                Block b00 = base.getBlock();
-                Block b10 = base.clone().add(1, 0, 0).getBlock();
-                Block b01 = base.clone().add(0, 0, 1).getBlock();
-                Block b11 = base.clone().add(1, 0, 1).getBlock();
+            for (int dx : offs)
+                for (int dz : offs) {
+                    Location base = location.clone().add(dx, 0, dz);
+                    Block b00 = base.getBlock();
+                    Block b10 = base.clone().add(1, 0, 0).getBlock();
+                    Block b01 = base.clone().add(0, 0, 1).getBlock();
+                    Block b11 = base.clone().add(1, 0, 1).getBlock();
 
-                boolean isBigJungle =
-                        b00.getType() == Material.JUNGLE_SAPLING &&
-                                b10.getType() == Material.JUNGLE_SAPLING &&
-                                b01.getType() == Material.JUNGLE_SAPLING &&
-                                b11.getType() == Material.JUNGLE_SAPLING;
+                    boolean isBigJungle =
+                            b00.getType() == Material.JUNGLE_SAPLING &&
+                                    b10.getType() == Material.JUNGLE_SAPLING &&
+                                    b01.getType() == Material.JUNGLE_SAPLING &&
+                                    b11.getType() == Material.JUNGLE_SAPLING;
 
-                if (isBigJungle) {
-                    // Check what custom saplings were recorded at those positions.
-                    CustomSapling s00 = dataManager.getSapling(b00.getLocation());
-                    CustomSapling s10 = dataManager.getSapling(b10.getLocation());
-                    CustomSapling s01 = dataManager.getSapling(b01.getLocation());
-                    CustomSapling s11 = dataManager.getSapling(b11.getLocation());
+                    if (isBigJungle) {
+                        // Check what custom saplings were recorded at those positions.
+                        CustomSapling s00 = dataManager.getSapling(b00.getLocation());
+                        CustomSapling s10 = dataManager.getSapling(b10.getLocation());
+                        CustomSapling s01 = dataManager.getSapling(b01.getLocation());
+                        CustomSapling s11 = dataManager.getSapling(b11.getLocation());
 
-                    boolean anyCustom = s00 != null || s10 != null || s01 != null || s11 != null;
-                    boolean allCustom = s00 != null && s10 != null && s01 != null && s11 != null;
-                    boolean sameId = allCustom &&
-                            s00.getId().equalsIgnoreCase(s10.getId()) &&
-                            s00.getId().equalsIgnoreCase(s01.getId()) &&
-                            s00.getId().equalsIgnoreCase(s11.getId());
+                        boolean anyCustom = s00 != null || s10 != null || s01 != null || s11 != null;
+                        boolean allCustom = s00 != null && s10 != null && s01 != null && s11 != null;
+                        boolean sameId = allCustom &&
+                                s00.getId().equalsIgnoreCase(s10.getId()) &&
+                                s00.getId().equalsIgnoreCase(s01.getId()) &&
+                                s00.getId().equalsIgnoreCase(s11.getId());
 
-                    if (anyCustom && !sameId) {
-                        event.setCancelled(true);
-                        return;
+                        if (anyCustom && !sameId) {
+                            event.setCancelled(true);
+                            return;
+                        }
                     }
                 }
-            }
         }
 
-            if (sapling != null) {
+        if (sapling != null) {
 
             event.setCancelled(true); // Stop the vanilla tree from growing.
 
@@ -672,15 +711,15 @@ public class ItemDetector implements Listener {
     }
 
     /*
-     * 
+     *
      * ###################################################
      * # +---------------------------------------------+ #
      * # | Crop Handling | #
      * # +---------------------------------------------+ #
      * ###################################################
-     * 
+     *
      * This section contains all methods and events related to crop handling.
-     * 
+     *
      */
 
     // Detect if a crop is custom and what it is.
@@ -865,41 +904,127 @@ public class ItemDetector implements Listener {
     @Nullable
     private CustomPotion detectPotion(ItemStack item) {
         String key = findPotionKey(item);
-        return key == null ? null : potionSets.get(key);
+        if (key == null) {
+            return null;
+        }
+        return potionSets.get(key);
     }
 
     // Player drinks custom potion.
     @EventHandler
     public void onConsume(PlayerItemConsumeEvent event) {
-        var potion = detectPotion(event.getItem());
-        if (potion == null) return;
+        // Try the stack from the player's hand.
+        CustomPotion potion = detectPotion(event.getPlayer().getInventory().getItemInMainHand());
 
-        var player = event.getPlayer();
+        // Fallback to the event item.
+        if (potion == null) {
+            potion = detectPotion(event.getItem());
+        }
 
-        // Then let the class run any custom logic
-        potion.onDrink(player, event.getItem(), event);
+        if (potion == null) {
+            return;
+        }
+
+        potion.onDrink(event.getPlayer(), event.getItem(), event);
     }
 
     // Player splashed by custom potion.
     @EventHandler
     public void onPotionSplash(PotionSplashEvent event) {
-        if (!(event.getPotion().getShooter() instanceof Player thrower)) return;
 
-        var item = event.getPotion().getItem();
-        var potion = detectPotion(item);
-        if (potion == null) return;
+        String potionKey = event.getPotion()
+                .getPersistentDataContainer()
+                .get(POTION_KEY, PersistentDataType.STRING);
 
-        potion.onSplash(thrower, event);
+        CustomPotion potion = null;
+
+        if (potionKey != null) {
+            potion = potionSets.get(potionKey);
+        }
+
+        // Fallback: resolve from the item itself.
+        if (potion == null) {
+            potion = detectPotion(event.getPotion().getItem());
+        }
+
+        if (potion == null) {
+            return;
+        }
+
+        // Shooter might not be a player (ItemsAdder being weird?)
+        Player thrower = null;
+        if (event.getPotion().getShooter() instanceof Player p) {
+            thrower = p;
+        }
+
+        // I think ItemsAdder doesn't actually make lingering potions, so we artificially create a cloud.
+        if (potion instanceof VanillaPotion vp
+                && vp.getForm() == VanillaPotionBuilder.PotionForm.LINGERING) {
+
+            // Spawn cloud at splash location.
+            var loc = event.getPotion().getLocation();
+            var world = loc.getWorld();
+            if (world != null) {
+                AreaEffectCloud cloud = (AreaEffectCloud)
+                        world.spawnEntity(loc, EntityType.AREA_EFFECT_CLOUD);
+
+                // Tag cloud so onCloudApply can resolve it.
+                String resolvedKey = (potionKey != null)
+                        ? potionKey : findPotionKey(event.getPotion().getItem());
+
+                if (resolvedKey == null) {
+                    // Can't associate this cloud with any custom potion, skip.
+                    cloud.remove();
+                    return;
+                }
+
+                cloud.getPersistentDataContainer().set(POTION_KEY,
+                        PersistentDataType.STRING,
+                        resolvedKey);
+
+                // Set colour from the bottle's custom colour.
+                var itemMeta = event.getPotion().getItem().getItemMeta();
+                if (itemMeta instanceof PotionMeta pm && pm.hasColor()) {
+                    var color = pm.getColor();
+                    if (color != null) {
+                        cloud.setColor(color);
+                    }
+                }
+
+                // Replicate vanilla cloud behaviour.
+                cloud.setRadius(3.0f);
+                cloud.setRadiusPerTick(-0.005f);
+                cloud.setDuration(200);
+                cloud.setWaitTime(0);
+                cloud.setReapplicationDelay(10);
+
+                // Dummy effect to force plugin to fire real behaviours.
+                cloud.addCustomEffect(new PotionEffect(PotionEffectType.LUCK, 1, 0, false, false, false), true);
+
+                cloud.setSource(thrower);
+            }
+        } else {
+            potion.onSplash(thrower, event);
+        }
     }
 
     @EventHandler
     public void onLingeringSplash(LingeringPotionSplashEvent event) {
         var thrown = event.getEntity();
-        var item = thrown.getItem();
 
-        String key = findPotionKey(item);
-        if (key == null) return;
+        // Try to read the key stored on throw
+        String key = thrown.getPersistentDataContainer().get(POTION_KEY,
+                PersistentDataType.STRING);
 
+        // Fallback: resolve from the item itself.
+        if (key == null) {
+            key = findPotionKey(thrown.getItem());
+        }
+        if (key == null) {
+            return;
+        }
+
+        // Tag the cloud with the same key
         var cloud = event.getAreaEffectCloud();
         cloud.getPersistentDataContainer().set(
                 POTION_KEY,
@@ -908,36 +1033,52 @@ public class ItemDetector implements Listener {
         );
     }
 
+
     // Player effected by lingering cloud.
     @EventHandler
     public void onCloudApply(AreaEffectCloudApplyEvent event) {
         var pdc = event.getEntity().getPersistentDataContainer();
         String key = pdc.get(POTION_KEY, PersistentDataType.STRING);
-        if (key == null) return;
+        if (key == null) {
+            return;
+        }
 
         CustomPotion potion = potionSets.get(key);
-        if (potion == null) return;
-
-        Player thrower = null;
-        var source = event.getEntity().getSource();
-        if (source instanceof Player p) {
-            thrower = p;
+        if (potion == null) {
+            return;
         }
-        if (thrower == null) return;
 
-        potion.onLingeringCloud(thrower, event.getEntity(), event);
+        potion.onLingeringCloud(
+                event.getEntity().getSource() instanceof Player p ? p : null,
+                event.getEntity(),
+                event
+        );
     }
 
     // Helper to find registry key that matches an ItemStack
     @Nullable
     private String findPotionKey(ItemStack item) {
         if (item == null || item.getType().isAir()) return null;
+
         var cs = CustomStack.byItemStack(item);
-        if (cs == null) return null;
-        var id = cs.getId().toLowerCase();
-        for (var key : potionSets.keySet()) {
-            if (id.contains(key.toLowerCase())) return key;
+        if (cs == null) {
+            return null;
         }
+
+        String iaId = cs.getId().toLowerCase();
+
+        for (String key : potionSets.keySet()) {
+            String reg = key.toLowerCase();
+
+            if (reg.equals(iaId)) {
+                return key;
+            }
+
+            if (reg.endsWith(":" + iaId)) {
+                return key;
+            }
+        }
+
         return null;
     }
 

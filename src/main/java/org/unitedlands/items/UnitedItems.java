@@ -25,6 +25,10 @@ public class UnitedItems extends JavaPlugin {
         return voucherManager;
     }
 
+    public ItemDetector getItemDetector() {
+        return itemDetector;
+    }
+
     @Override
     public void onDisable() {
         if (itemDetector != null) {
