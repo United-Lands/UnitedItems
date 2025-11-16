@@ -4,8 +4,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.unitedlands.items.crops.CustomCrop;
-import org.unitedlands.items.saplings.CustomSapling;
+import org.unitedlands.items.customitems.crops.CustomCrop;
+import org.unitedlands.items.customitems.saplings.CustomSapling;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -159,7 +159,7 @@ public class DataManager {
     }
 
     public int getCropStage(Location loc) {
-        return growthStages.get(loc);
+        return growthStages.getOrDefault(loc, 1);
     }
 
     public void removeCrop(Location loc) {
