@@ -51,11 +51,14 @@ public class ToolManager implements Listener {
 
     // Detect if the player is holding a registered tool.
     public CustomTool detectTool(Player player) {
-        ItemStack itemInHand = player.getInventory().getItemInMainHand();
+        ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
+        ItemStack itemInOffhand = player.getInventory().getItemInOffHand();
 
         for (Map.Entry<String, CustomTool> entry : toolSets.entrySet()) {
             String toolId = entry.getKey();
-            if (isCustomTool(itemInHand, toolId)) {
+            if (isCustomTool(itemInMainHand, toolId)) {
+                return entry.getValue();
+            } else if (isCustomTool(itemInOffhand, toolId)) {
                 return entry.getValue();
             }
         }
@@ -110,7 +113,8 @@ public class ToolManager implements Listener {
     public void onInteractTool(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         CustomTool tool = detectTool(player);
-        if (tool == null) return;
+        if (tool == null)
+            return;
 
         if (!permissionsManager.canInteract(player, event.getClickedBlock()))
             return;
@@ -152,7 +156,6 @@ public class ToolManager implements Listener {
             tool.handleProjectileLaunch(player, event);
         }
     }
-
 
     @EventHandler
     // Check projectile launch for use of custom tools.
