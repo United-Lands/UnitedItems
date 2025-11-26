@@ -5,6 +5,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
+import org.unitedlands.utils.Logger;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class VanillaPotionBuilder {
 
     private static final String ROOT_PATH = "potions";
+    @SuppressWarnings("unused")
     private final Plugin plugin;
 
     public VanillaPotionBuilder(Plugin plugin) {
@@ -25,7 +27,7 @@ public class VanillaPotionBuilder {
     public Map<String, CustomPotion> loadFrom(FileConfiguration config) {
         ConfigurationSection potionsRoot = config.getConfigurationSection(ROOT_PATH);
         if (potionsRoot == null) {
-            plugin.getLogger().info("No potionsRoot section found at '" + ROOT_PATH + "'. Skipping vanilla effects potion load.");
+            Logger.log("No potionsRoot section found at '" + ROOT_PATH + "'. Skipping vanilla effects potion load.", "UnitedItems");
             return Collections.emptyMap();
         }
 
@@ -34,14 +36,14 @@ public class VanillaPotionBuilder {
         for (String namespace : potionsRoot.getKeys(false)) {
             ConfigurationSection namespaceSection = potionsRoot.getConfigurationSection(namespace);
             if (namespaceSection == null) {
-                plugin.getLogger().warning("Namespace '" + namespace + "' is not a section. Skipping.");
+                Logger.logWarning("Namespace '" + namespace + "' is not a section. Skipping.", "UnitedItems");
                 continue;
             }
 
             for (String potionId : namespaceSection.getKeys(false)) {
                 ConfigurationSection section = namespaceSection.getConfigurationSection(potionId);
                 if (section == null) {
-                    plugin.getLogger().warning("Potion '" + namespace + "." + potionId + "' is not a section. Skipping.");
+                    Logger.logWarning("Potion '" + namespace + "." + potionId + "' is not a section. Skipping.", "UnitedItems");
                     continue;
                 }
 
@@ -51,7 +53,7 @@ public class VanillaPotionBuilder {
                 int duration = section.getInt("duration");
 
                 if (formStr == null) {
-                    plugin.getLogger().warning("Potion config '" + namespace + "' is missing 'form'. Skipping.");
+                    Logger.logWarning("Potion config '" + namespace + "' is missing 'form'. Skipping.", "UnitedItems");
                     continue;
                 }
 
@@ -59,12 +61,12 @@ public class VanillaPotionBuilder {
                 try {
                     form = PotionForm.valueOf(formStr);
                 } catch (IllegalArgumentException ex) {
-                    plugin.getLogger().warning("Potion config '" + namespace + "' has an invalid form '" + formStr + "'. Skipping.");
+                    Logger.logWarning("Potion config '" + namespace + "' has an invalid form '" + formStr + "'. Skipping.", "UnitedItems");
                     continue;
                 }
 
                 if (effectStr == null) {
-                    plugin.getLogger().warning("Potion config '" + namespace + "' is missing 'effect'. Skipping.");
+                    Logger.logWarning("Potion config '" + namespace + "' is missing 'effect'. Skipping.", "UnitedItems");
                     continue;
                 }
 
@@ -72,25 +74,25 @@ public class VanillaPotionBuilder {
                 PotionEffectType effect = org.bukkit.Registry.EFFECT.get(effectKey);
 
                 if (effect == null) {
-                    plugin.getLogger().warning("Potion config '" + namespace + "' has unknown effect '" + effectStr + "'. Skipping.");
+                    Logger.logWarning("Potion config '" + namespace + "' has unknown effect '" + effectStr + "'. Skipping.", "UnitedItems");
                     continue;
                 }
 
                 if (duration <= 0) {
-                    plugin.getLogger().warning("Potion config '" + namespace + "' has non-positive duration " + duration + ". Skipping.");
+                    Logger.logWarning("Potion config '" + namespace + "' has non-positive duration " + duration + ". Skipping.", "UnitedItems");
                     continue;
                 }
 
                 String fullKey = namespace + ":" + potionId;
 
                 result.put(fullKey, new VanillaPotion(form, effect, amplifier, duration));
-                plugin.getLogger().info("Loaded potion config '" + namespace + "' (" + form + ", " +
-                        effect.getKey().getKey() + ", amp=" + amplifier + ", dur=" + duration + "t)");
+                Logger.log("Loaded potion config '" + namespace + "' (" + form + ", " +
+                        effect.getKey().getKey() + ", amp=" + amplifier + ", dur=" + duration + "t)", "UnitedItems");
             }
         }
 
             if (result.isEmpty()) {
-                plugin.getLogger().info("No valid potions were loaded from '" + ROOT_PATH + "'.");
+                Logger.log("No valid potions were loaded from '" + ROOT_PATH + "'.", "UnitedItems");
             }
 
             return result;

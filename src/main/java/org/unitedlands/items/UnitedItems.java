@@ -5,11 +5,14 @@ import org.unitedlands.items.commands.UnitedItemsCommands;
 import org.unitedlands.items.commands.UpdateItemCommand;
 import org.unitedlands.items.managers.*;
 import org.unitedlands.items.util.DataManager;
+import org.unitedlands.items.util.MessageProvider;
 import org.unitedlands.items.util.PermissionsManager;
 
 import java.util.Objects;
 
 public class UnitedItems extends JavaPlugin {
+
+    private static MessageProvider messageProvider;
 
     private PotionManager potionManager;
     private VoucherManager voucherManager;
@@ -18,6 +21,8 @@ public class UnitedItems extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+
+        messageProvider = new MessageProvider(getConfig());
 
         PermissionsManager permissionsManager = new PermissionsManager();
         dataManager = new DataManager();
@@ -36,8 +41,8 @@ public class UnitedItems extends JavaPlugin {
         pm.registerEvents(treeManager, this);
         pm.registerEvents(voucherManager, this);
 
-        Objects.requireNonNull(getCommand("uniteditems")).setExecutor(new UnitedItemsCommands(this));
-        Objects.requireNonNull(getCommand("updateitem")).setExecutor(new UpdateItemCommand(this));
+        Objects.requireNonNull(getCommand("uniteditems")).setExecutor(new UnitedItemsCommands(this, messageProvider));
+        Objects.requireNonNull(getCommand("updateitem")).setExecutor(new UpdateItemCommand(this, messageProvider));
     }
 
     public VoucherManager getVoucherManager() {
@@ -46,6 +51,10 @@ public class UnitedItems extends JavaPlugin {
 
     public PotionManager getPotionManager() {
         return potionManager;
+    }
+
+    public static MessageProvider getMessageProvider() {
+        return messageProvider;
     }
 
     @Override

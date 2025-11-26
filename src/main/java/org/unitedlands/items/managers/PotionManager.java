@@ -22,6 +22,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.items.customitems.potions.*;
+import org.unitedlands.utils.Logger;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -263,7 +264,7 @@ public class PotionManager implements Listener {
         potionSets.entrySet().removeIf(entry -> entry.getValue() instanceof VanillaPotion);
 
         potionSets.putAll(loaded);
-        plugin.getLogger().info("Reloaded " + loaded.size() + " vanilla style potions.");
+        Logger.log("Reloaded " + loaded.size() + " vanilla style potions.", "UnitedItems");
     }
 
     public void reloadPotions() {

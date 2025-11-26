@@ -165,8 +165,19 @@ potions:
 # This section has editable language configurations for plugin messages.
 
 messages:
-  tool-broken: "§c§lU§f§lL §7§lItems §8§l» §cThis tool is broken and needs repair to continue using it."
-  armour-broken: "§c§lU§f§lL §7§lItems §8§l» §cThis armour is broken and you will take double damage until it is repaired."
-  voucher-unlocked: "§c§lU§f§lL §7§lItems §8§l» §aVoucher successfully redeemed!"
-  voucher-owned: "§c§lU§f§lL §7§lItems §8§l» §cYou have already redeemed this voucher!"
-  voucher-failed: "§c§lU§f§lL §7§lItems §8§l» §cError with redeeming voucher. Please contact Staff."
+  prefix: "<bold><red>U</red><white>L</white> Dungeons <dark_gray>» </dark_gray></bold>"
+  reload: "<dark_green>Plugin reloaded."
+  tool-broken: "<red>This tool is broken and needs repair to continue using it.</red>"
+  armour-broken: "<yellow>This armour is broken and you will take double damage until it is repaired.</yellow>"
+  voucher-unlocked: "<green>Voucher successfully redeemed!</green>"
+  voucher-owned: "<yellow>You have already redeemed this voucher!</yellow>"
+  voucher-failed: "<red>Error with redeeming voucher. Please contact Staff.</red>"
+  update-no-item: "<red>You must hold an item to update in your main hand.</red>"
+  update-no-custom-item: "<red>This is not a custom item and can't be updated.</red>"
+  update-updating: "<gray>Updating item...</gray>"
+  update-enchants: "<gray>Adding enchants...</gray>"
+  update-damage: "<gray>Applying damage...</gray>"
+  update-trim: "<gray>Applying trim...</gray>"
+  update-done: "<gray>Done.</gray>"
+  update-error: "<red>This item can't be updated.</red>"
+      
