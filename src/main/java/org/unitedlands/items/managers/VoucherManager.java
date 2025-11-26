@@ -20,6 +20,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.unitedlands.items.UnitedItems;
+import org.unitedlands.utils.Logger;
+import org.unitedlands.utils.Messenger;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -34,13 +37,9 @@ public class VoucherManager implements Listener {
     private final Plugin plugin;
     private final LuckPerms luckPerms;
 
-    private String msgAlreadyOwned;
-    private String msgUnlocked;
-    private String msgFailed;
     private Sound fanfareSound;
     private Sound failSound;
     private Particle fanfareParticle;
-
 
     // Tiny guard to prevent immediate double-clicks breaking things.
     private final ConcurrentHashMap<UUID, Long> lastUseMs = new ConcurrentHashMap<>();
@@ -52,26 +51,22 @@ public class VoucherManager implements Listener {
     }
 
     public void reload() {
-        loadMessages();
         loadFanfare();
         loadDerivation();
     }
 
-    private void loadMessages() {
-        this.msgAlreadyOwned = (plugin.getConfig().getString("messages.voucher-owned"));
-        this.msgUnlocked     = (plugin.getConfig().getString("messages.voucher-unlocked"));
-        this.msgFailed       = (plugin.getConfig().getString("messages.voucher-failed"));
-    }
-
     private void loadDerivation() {
         var c = plugin.getConfig();
-        String ns  = c.getString("vouchers.namespace", cfgNamespace);
-        String pp  = c.getString("vouchers.path-prefix", cfgPathPrefix);
+        String ns = c.getString("vouchers.namespace", cfgNamespace);
+        String pp = c.getString("vouchers.path-prefix", cfgPathPrefix);
         String fmt = c.getString("vouchers.permission-format", cfgPermFormat);
 
-        if (ns != null && !ns.isBlank())  cfgNamespace = ns.trim();
-        if (pp != null && !pp.isBlank())  cfgPathPrefix = pp.trim();
-        if (fmt != null && !fmt.isBlank()) cfgPermFormat = fmt.trim();
+        if (ns != null && !ns.isBlank())
+            cfgNamespace = ns.trim();
+        if (pp != null && !pp.isBlank())
+            cfgPathPrefix = pp.trim();
+        if (fmt != null && !fmt.isBlank())
+            cfgPermFormat = fmt.trim();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -82,20 +77,25 @@ public class VoucherManager implements Listener {
     }
 
     public boolean tryRedeem(PlayerInteractEvent event) {
-        // Only handle right-clicks with the MAIN_HAND to avoid duplicate firing from off-hand.
-        if (event.getHand() != EquipmentSlot.HAND) return false;
+        // Only handle right-clicks with the MAIN_HAND to avoid duplicate firing from
+        // off-hand.
+        if (event.getHand() != EquipmentSlot.HAND)
+            return false;
 
         Action action = event.getAction();
-        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) return false;
+        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK)
+            return false;
 
         final Player player = event.getPlayer();
         final ItemStack item = event.getItem();
-        if (item == null) return false;
+        if (item == null)
+            return false;
 
         // Detect voucher and derive permission.
         String permission = derivePermission(item);
         // If it's not a voucher, pass the behaviour back to ItemDetector.
-        if (permission == null) return false;
+        if (permission == null)
+            return false;
 
         // Slight delay to stop weird behaviour if spam-redeeming.
         final long now = System.currentTimeMillis();
@@ -105,9 +105,12 @@ public class VoucherManager implements Listener {
             return true;
         }
 
+        var messageProvider = UnitedItems.getMessageProvider();
+
         // Block redeeming if they already own.
         if (player.hasPermission(permission)) {
-            player.sendMessage(msgAlreadyOwned);
+            Messenger.sendMessage(player, messageProvider.get("messages.voucher-owned"), null,
+                    messageProvider.get("messages.prefix"));
             playFailSound(player);
             event.setCancelled(true);
             return true;
@@ -122,11 +125,13 @@ public class VoucherManager implements Listener {
 
         // Feedback & consume on success
         if (result.wasSuccessful()) {
-        safeDecrement(event, item);
-        player.sendMessage(msgUnlocked);
-        playFanfare(player);
+            safeDecrement(event, item);
+            Messenger.sendMessage(player, messageProvider.get("messages.voucher-unlocked"), null,
+                    messageProvider.get("messages.prefix"));
+            playFanfare(player);
         } else {
-            player.sendMessage(msgFailed);
+            Messenger.sendMessage(player, messageProvider.get("messages.voucher-failed"), null,
+                    messageProvider.get("messages.prefix"));
             playFailSound(player);
         }
 
@@ -139,23 +144,29 @@ public class VoucherManager implements Listener {
     // For example, prefixes:prefixbear will return the permission chatprefix.bear
     public String derivePermission(ItemStack item) {
         CustomStack cs = CustomStack.byItemStack(item);
-        if (cs == null) return null;
+        if (cs == null)
+            return null;
 
         String id = cs.getNamespacedID();
-        if (id == null) return null;
+        if (id == null)
+            return null;
 
         int colon = id.indexOf(':');
-        if (colon < 0) return null;
+        if (colon < 0)
+            return null;
 
         String namespace = id.substring(0, colon);
         String path = id.substring(colon + 1);
 
-        if (!namespace.equalsIgnoreCase(cfgNamespace)) return null;
-        if (!path.regionMatches(true, 0, cfgPathPrefix, 0, cfgPathPrefix.length())) return null;
+        if (!namespace.equalsIgnoreCase(cfgNamespace))
+            return null;
+        if (!path.regionMatches(true, 0, cfgPathPrefix, 0, cfgPathPrefix.length()))
+            return null;
 
         String rawKey = path.substring(cfgPathPrefix.length());
         String key = normaliseKey(rawKey);
-        if (key.isEmpty()) return null;
+        if (key.isEmpty())
+            return null;
 
         return cfgPermFormat.replace("%key%", key);
     }
@@ -193,40 +204,47 @@ public class VoucherManager implements Listener {
     }
 
     private static String trimOrNull(String s) {
-        if (s == null) return null;
+        if (s == null)
+            return null;
         String t = s.trim();
         return t.isEmpty() ? null : t;
     }
 
     private Sound resolveSound(String name) {
-        if (name == null) return null;
+        if (name == null)
+            return null;
         String s = name.trim();
-        if (s.isEmpty()) return null;
+        if (s.isEmpty())
+            return null;
 
-        // Accept "entity.experience_orb.pickup" or "minecraft:entity.experience_orb.pickup"
+        // Accept "entity.experience_orb.pickup" or
+        // "minecraft:entity.experience_orb.pickup"
         String lower = s.toLowerCase(Locale.ROOT).replace(' ', '_');
         NamespacedKey key = lower.contains(":")
                 ? NamespacedKey.fromString(lower)
                 : NamespacedKey.minecraft(lower);
 
-        if (key == null) return null;
+        if (key == null)
+            return null;
 
         Sound sound = Registry.SOUNDS.get(key);
         if (sound == null) {
-            plugin.getLogger().warning("[Vouchers] Unknown sound '" + name + "'. Sound disabled.");
+            Logger.logWarning("[Vouchers] Unknown sound '" + name + "'. Sound disabled.", "UnitedItems");
         }
         return sound;
     }
 
     private Particle resolveParticle(String name) {
-        if (name == null) return null;
+        if (name == null)
+            return null;
         String s = name.trim();
-        if (s.isEmpty()) return null;
+        if (s.isEmpty())
+            return null;
 
         try {
             return Particle.valueOf(s.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ignored) {
-            plugin.getLogger().warning("[Vouchers] Unknown particle '" + name + "'. Particle disabled.");
+            Logger.logWarning("[Vouchers] Unknown particle '" + name + "'. Particle disabled.", "UnitedItems");
             return null;
         }
     }
@@ -239,8 +257,7 @@ public class VoucherManager implements Listener {
             player.getWorld().spawnParticle(
                     fanfareParticle,
                     player.getLocation().add(0, 2.0, 0),
-                    20, 0, 0, 0, 0
-            );
+                    20, 0, 0, 0, 0);
         }
     }
 

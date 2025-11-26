@@ -22,13 +22,12 @@ import org.bukkit.plugin.Plugin;
 import org.unitedlands.items.customitems.crops.*;
 import org.unitedlands.items.util.DataManager;
 import org.unitedlands.items.util.PermissionsManager;
+import org.unitedlands.utils.Logger;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-
-import static org.unitedlands.items.util.DataManager.log;
 
 public class CropManager implements Listener {
 
@@ -64,7 +63,7 @@ public class CropManager implements Listener {
         dataManager.loadCrops(cropSets);
 
         Bukkit.getScheduler().runTaskLater(plugin,
-                () -> log("Crops in memory after load: " + dataManager.getCropCount()), 100L);
+                () -> Logger.log("Crops in memory after load: " + dataManager.getCropCount(), "UnitedItems"), 100L);
     }
 
     // Detect if a crop is custom and what it is.

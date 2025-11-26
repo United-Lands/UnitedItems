@@ -11,6 +11,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import org.unitedlands.items.UnitedItems;
+import org.unitedlands.utils.Messenger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,12 +20,10 @@ import java.util.Map;
 public class GamemasterArmour extends CustomArmour {
 
     private final Plugin plugin;
-    private final String armourBrokenMessage;
     private final Map<Player, Long> messageCooldowns;
 
     public GamemasterArmour(Plugin plugin, FileConfiguration config) {
         this.plugin = plugin;
-        this.armourBrokenMessage = config.getString("messages.armour-broken");
         this.messageCooldowns = new HashMap<>();
     }
 
@@ -118,7 +118,9 @@ public class GamemasterArmour extends CustomArmour {
         long lastMessageTime = messageCooldowns.getOrDefault(player, 0L);
         // Check if the cooldown has finished.
         if (currentTime - lastMessageTime >= 5000) {
-            player.sendMessage(armourBrokenMessage);
+
+            var messageProvider = UnitedItems.getMessageProvider();
+            Messenger.sendMessage(player, messageProvider.get("messages.armour-broken"), null, messageProvider.get("messages.prefix"));
             messageCooldowns.put(player, currentTime);
         }
     }

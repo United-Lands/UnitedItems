@@ -22,11 +22,10 @@ import org.bukkit.plugin.Plugin;
 import org.unitedlands.items.customitems.saplings.*;
 import org.unitedlands.items.util.DataManager;
 import org.unitedlands.items.util.PermissionsManager;
+import org.unitedlands.utils.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.unitedlands.items.util.DataManager.log;
 
 public class TreeManager implements Listener {
 
@@ -55,7 +54,7 @@ public class TreeManager implements Listener {
         dataManager.loadSaplings(saplingSets);
 
         Bukkit.getScheduler().runTaskLater(plugin,
-                () -> log("Saplings in memory after load: " + dataManager.getSaplingCount()), 100L);
+                () -> Logger.log("Saplings in memory after load: " + dataManager.getSaplingCount(), "UnitedItems"), 100L);
     }
 
     // Detect if a held item is a custom sapling.

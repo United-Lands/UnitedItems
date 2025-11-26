@@ -11,6 +11,9 @@ import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.jetbrains.annotations.NotNull;
 import org.unitedlands.items.UnitedItems;
+import org.unitedlands.items.util.MessageProvider;
+import org.unitedlands.utils.Logger;
+import org.unitedlands.utils.Messenger;
 
 import dev.lone.itemsadder.api.CustomStack;
 
@@ -18,9 +21,11 @@ public class UpdateItemCommand implements CommandExecutor {
 
     @SuppressWarnings("unused")
     private final UnitedItems plugin;
+    private final MessageProvider messageProvider;
 
-    public UpdateItemCommand(UnitedItems plugin) {
+    public UpdateItemCommand(UnitedItems plugin, MessageProvider messageProvider) {
         this.plugin = plugin;
+        this.messageProvider = messageProvider;
     }
 
     @Override
@@ -30,8 +35,6 @@ public class UpdateItemCommand implements CommandExecutor {
         if (args.length != 0)
             return false;
 
-        var logger = plugin.getLogger();
-
         Player player = (Player) sender;
 
         if (player == null)
@@ -39,7 +42,8 @@ public class UpdateItemCommand implements CommandExecutor {
 
         var heldItem = player.getInventory().getItemInMainHand();
         if (heldItem == null || heldItem.getType() == Material.AIR) {
-            player.sendMessage("§cYou must hold an item to update in your main hand.");
+            Messenger.sendMessage(player, messageProvider.get("messages.update-no-item"), null,
+                    messageProvider.get("messages.prefix"));
             return false;
         }
 
@@ -49,15 +53,17 @@ public class UpdateItemCommand implements CommandExecutor {
         CustomStack customStack = CustomStack.byItemStack(heldItem);
 
         if (customStack == null) {
-            player.sendMessage("§cThis is not a custom item and can't be updated.");
+            Messenger.sendMessage(player, messageProvider.get("messages.update-no-custom-item"), null,
+                    messageProvider.get("messages.prefix"));
             return false;
         }
 
         if (keys.contains(customStack.getNamespacedID())) {
             var targetId = updateSection.getString(customStack.getNamespacedID());
 
-            logger.info("Updating " + customStack.getNamespacedID() + " to " + targetId + "...");
-            player.sendMessage("§7Updating item...");
+            Logger.log("Updating " + customStack.getNamespacedID() + " to " + targetId + "...", "UnitedItems");
+            Messenger.sendMessage(player, messageProvider.get("messages.update-updating"), null,
+                    messageProvider.get("messages.prefix"));
 
             var newItem = CustomStack.getInstance(targetId).getItemStack();
 
@@ -68,10 +74,10 @@ public class UpdateItemCommand implements CommandExecutor {
             newItemMeta.displayName(oldItemMeta.displayName());
             newItem.setItemMeta(newItemMeta);
 
-
             // Enchantments
             if (oldItemMeta.hasEnchants()) {
-                player.sendMessage("§7Adding enchants...");
+                Messenger.sendMessage(player, messageProvider.get("messages.update-updating"), null,
+                        messageProvider.get("messages.prefix"));
 
                 newItemMeta.removeEnchantments();
                 var oldEnchants = oldItemMeta.getEnchants();
@@ -83,8 +89,7 @@ public class UpdateItemCommand implements CommandExecutor {
 
             // Damage
             if (oldItemMeta instanceof Damageable oldDamageableMeta) {
-
-                player.sendMessage("§7Applying damage...");
+                Messenger.sendMessage(player, messageProvider.get("messages.update-damage"), null, messageProvider.get("messages.prefix"));
                 var damage = oldDamageableMeta.getDamage();
 
                 var newDamageable = (Damageable) newItemMeta;
@@ -94,8 +99,8 @@ public class UpdateItemCommand implements CommandExecutor {
 
             // Armor trims
             if (oldItemMeta instanceof ArmorMeta oldArmorMeta) {
-
-                player.sendMessage("§7Applying trim...");
+                Messenger.sendMessage(player, messageProvider.get("messages.update-trim"), null,
+                        messageProvider.get("messages.prefix"));
                 var trim = oldArmorMeta.getTrim();
 
                 var newArmorMeta = (ArmorMeta) newItemMeta;
@@ -108,9 +113,11 @@ public class UpdateItemCommand implements CommandExecutor {
 
             player.getInventory().setItemInMainHand(newItem);
 
-            player.sendMessage("§7Done.");
+            Messenger.sendMessage(player, messageProvider.get("messages.update-done"), null,
+                    messageProvider.get("messages.prefix"));
         } else {
-            player.sendMessage("§cThis item can't be updated.");
+            Messenger.sendMessage(player, messageProvider.get("messages.update-error"), null,
+                    messageProvider.get("messages.prefix"));
         }
 
         return true;

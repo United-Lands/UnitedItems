@@ -1,11 +1,10 @@
 package org.unitedlands.items.util;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.unitedlands.items.customitems.crops.CustomCrop;
 import org.unitedlands.items.customitems.saplings.CustomSapling;
+import org.unitedlands.utils.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +33,7 @@ public class DataManager {
     public void loadSaplings(Map<String, CustomSapling> saplingSets) {
         HashMap<GenericLocation, String> loadedSaplings = SerializableData.Farming.readFromDatabase("sapling.dat", HashMap.class);
         if (loadedSaplings == null || loadedSaplings.isEmpty()) {
-            log("&aNo cached saplings found.");
+            Logger.log("&aNo cached saplings found.", "UnitedItems");
             return;
         }
 
@@ -48,7 +47,7 @@ public class DataManager {
 
             Bukkit.getScheduler().runTaskLater(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> sapling.onGrow(location), 20L); // Delay to allow chunk loading
         }
-        log("Saplings successfully loaded into memory: " + saplingMap.size());
+        Logger.log("Saplings successfully loaded into memory: " + saplingMap.size(), "UnitedItems");
     }
 
     // Save saplings to storage
@@ -62,14 +61,14 @@ public class DataManager {
         });
 
         SerializableData.Farming.writeToDatabase(serializedSaplings, SAPLING_FILE);
-        log("&aSaplings saved successfully. Total saved: " + serializedSaplings.size());
+        Logger.log("&aSaplings saved successfully. Total saved: " + serializedSaplings.size(), "UnitedItems");
     }
 
     @SuppressWarnings("unchecked")
     public void loadCrops(Map<String, CustomCrop> cropSets) {
         Map<GenericLocation, CropData> loadedCrops = SerializableData.Farming.readFromDatabase(CROP_FILE, HashMap.class);
         if (loadedCrops == null || loadedCrops.isEmpty()) {
-            log("&aNo cached crops found.");
+            Logger.log("&aNo cached crops found.", "UnitedItems");
             return;
         }
 
@@ -83,7 +82,7 @@ public class DataManager {
                 growthStages.put(location, cropData.getGrowthStage());
             }
         }
-        log("&aCrops successfully loaded into memory: " + cropMap.size());
+        Logger.log("&aCrops successfully loaded into memory: " + cropMap.size(), "UnitedItems");
     }
 
     public void saveCrops() {
@@ -93,7 +92,7 @@ public class DataManager {
             serializedCrops.put(new GenericLocation(loc), new CropData(crop.getId(), stage));
         });
         SerializableData.Farming.writeToDatabase(serializedCrops, CROP_FILE);
-        log("Crops saved successfully. Total saved: " + serializedCrops.size());
+        Logger.log("Crops saved successfully. Total saved: " + serializedCrops.size(), "UnitedItems");
     }
 
     /*
@@ -172,18 +171,4 @@ public class DataManager {
         return cropMap.size();
     }
 
-    /*
-
-    #############################################
-    # +---------------------------------------+ #
-    # |                Logging                | #
-    # +---------------------------------------+ #
-    #############################################
-
-    */
-
-    // Log messages to the console
-    public static void log(String msg) {
-        Bukkit.getConsoleSender().sendMessage(Component.text("[UnitedItems] " + msg).color(NamedTextColor.WHITE));
-    }
 }
