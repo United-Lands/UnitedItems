@@ -16,6 +16,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
@@ -50,16 +51,16 @@ public class ToolManager implements Listener {
     }
 
     // Detect if the player is holding a registered tool.
-    public CustomTool detectTool(Player player) {
+    public CustomToolDetectionResult detectTool(Player player) {
         ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
         ItemStack itemInOffhand = player.getInventory().getItemInOffHand();
 
         for (Map.Entry<String, CustomTool> entry : toolSets.entrySet()) {
             String toolId = entry.getKey();
             if (isCustomTool(itemInMainHand, toolId)) {
-                return entry.getValue();
+                return new CustomToolDetectionResult(entry.getValue(), EquipmentSlot.HAND);
             } else if (isCustomTool(itemInOffhand, toolId)) {
-                return entry.getValue();
+                return new CustomToolDetectionResult(entry.getValue(), EquipmentSlot.OFF_HAND);
             }
         }
 
@@ -79,9 +80,9 @@ public class ToolManager implements Listener {
 
     // Apply effects for the detected tool.
     private void applyEffectsIfHoldingTool(Player player) {
-        CustomTool tool = detectTool(player);
-        if (tool != null) {
-            tool.applyEffects(player);
+        CustomToolDetectionResult result = detectTool(player);
+        if (result != null) {
+            result.getTool().applyEffects(player);
         } else {
             removeToolEffects(player);
         }
@@ -89,10 +90,10 @@ public class ToolManager implements Listener {
 
     // Remove any effects if a player is no longer holding the tool.
     private void removeToolEffects(Player player) {
-        CustomTool detectedTool = detectTool(player); // Detect currently held tool
-        if (detectedTool != null) {
+        CustomToolDetectionResult result = detectTool(player);
+        if (result != null) {
             // Remove only the effects applied by the detected tool
-            for (PotionEffectType effectType : detectedTool.getAppliedEffects()) {
+            for (PotionEffectType effectType : result.getTool().getAppliedEffects()) {
                 if (player.hasPotionEffect(effectType)) {
                     player.removePotionEffect(effectType);
                 }
@@ -112,24 +113,27 @@ public class ToolManager implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onInteractTool(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        CustomTool tool = detectTool(player);
-        if (tool == null)
+        CustomToolDetectionResult result = detectTool(player);
+        if (result == null)
             return;
 
-        if (!permissionsManager.canInteract(player, event.getClickedBlock()))
+        if (!permissionsManager.canInteract(player, event.getClickedBlock())) {
+            // Cancel all vanilla actions for the custom tool
+            event.setCancelled(true);
             return;
+        }
 
-        tool.handleInteract(player, event);
+        result.getTool().handleInteract(player, event, result.hand);
     }
 
     @EventHandler
     // Check block breaks for use of custom tools.
     public void onNormalBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
-        CustomTool tool = detectTool(player);
+        CustomToolDetectionResult result = detectTool(player);
         // Delegate the block breaking logic to the specific tool.
-        if (tool != null) {
-            tool.handleBlockBreak(player, event);
+        if (result != null) {
+            result.getTool().handleBlockBreak(player, event, result.getHand());
         }
     }
 
@@ -137,9 +141,9 @@ public class ToolManager implements Listener {
     // Check entity damage for use of custom tools.
     public void handleEntityDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
-            CustomTool tool = detectTool(player);
-            if (tool != null) {
-                tool.handleEntityDamage(player, event);
+            CustomToolDetectionResult result = detectTool(player);
+            if (result != null) {
+                result.getTool().handleEntityDamage(player, event, result.getHand());
             }
         }
     }
@@ -151,18 +155,18 @@ public class ToolManager implements Listener {
         }
 
         // Tool logic
-        CustomTool tool = detectTool(player);
-        if (tool != null) {
-            tool.handleProjectileLaunch(player, event);
+        CustomToolDetectionResult result = detectTool(player);
+        if (result != null) {
+            result.getTool().handleProjectileLaunch(player, event, result.getHand());
         }
     }
 
     @EventHandler
     // Check projectile launch for use of custom tools.
     public void handleElytraBoost(PlayerElytraBoostEvent event) {
-        CustomTool tool = detectTool(event.getPlayer());
-        if (tool != null) {
-            tool.handleElytraBoost(event.getPlayer(), event);
+        CustomToolDetectionResult result = detectTool(event.getPlayer());
+        if (result != null) {
+            result.getTool().handleElytraBoost(event.getPlayer(), event, result.getHand());
         }
     }
 
@@ -215,4 +219,25 @@ public class ToolManager implements Listener {
             }
         }
     }
+
+    private class CustomToolDetectionResult {
+
+        private CustomTool tool;
+        private EquipmentSlot hand;
+
+        public CustomToolDetectionResult(CustomTool tool, EquipmentSlot hand) {
+            this.tool = tool;
+            this.hand = hand;
+        }
+
+        public CustomTool getTool() {
+            return tool;
+        }
+
+        public EquipmentSlot getHand() {
+            return hand;
+        }
+
+    }
+
 }

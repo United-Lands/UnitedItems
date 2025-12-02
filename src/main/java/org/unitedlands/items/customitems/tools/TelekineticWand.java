@@ -28,7 +28,7 @@ public class TelekineticWand extends CustomTool implements Listener {
     }
 
     @Override
-    public void handleInteract(Player player, PlayerInteractEvent event) {
+    public void handleInteract(Player player, PlayerInteractEvent event, EquipmentSlot hand) {
 
         if (event.getHand() == null)
             return;

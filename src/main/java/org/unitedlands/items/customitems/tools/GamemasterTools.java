@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -65,7 +66,7 @@ public class GamemasterTools extends CustomTool {
     }
 
     @Override
-    public void handleBlockBreak(Player player, BlockBreakEvent event) {
+    public void handleBlockBreak(Player player, BlockBreakEvent event, EquipmentSlot hand) {
         ItemStack item = player.getInventory().getItemInMainHand();
 
         // Update durability and broken state.
@@ -84,7 +85,7 @@ public class GamemasterTools extends CustomTool {
     }
 
     @Override
-    public void handleInteract(Player player, PlayerInteractEvent event) {
+    public void handleInteract(Player player, PlayerInteractEvent event, EquipmentSlot hand) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
@@ -112,7 +113,7 @@ public class GamemasterTools extends CustomTool {
     }
 
     @Override
-    public void handleEntityDamage(Player player, EntityDamageByEntityEvent event) {
+    public void handleEntityDamage(Player player, EntityDamageByEntityEvent event, EquipmentSlot hand) {
         ItemStack item = player.getInventory().getItemInMainHand();
 
         // Update durability and broken state.

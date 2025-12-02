@@ -5,6 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -49,7 +50,7 @@ public class BarkbinderAxe extends CustomTool {
     }
 
     @Override
-    public void handleInteract(Player player, PlayerInteractEvent event) {
+    public void handleInteract(Player player, PlayerInteractEvent event, EquipmentSlot hand) {
 
         // Only continue if a block was right-clicked.
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null) {
