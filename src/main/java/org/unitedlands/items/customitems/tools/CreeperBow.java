@@ -1,9 +1,11 @@
 package org.unitedlands.items.customitems.tools;
 
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.Plugin;
 
 public class CreeperBow extends CustomTool implements Listener {
@@ -15,8 +17,14 @@ public class CreeperBow extends CustomTool implements Listener {
     }
 
     @Override
-    public void handleProjectileLaunch(Player player, ProjectileLaunchEvent event) {
+    public void handleProjectileLaunch(Player player, ProjectileLaunchEvent event, EquipmentSlot hand) {
 
+        if (hand == EquipmentSlot.OFF_HAND)
+            return;
+
+        if (!(event.getEntity() instanceof Arrow))
+            return;
+        
         double tntChance = plugin.getConfig().getDouble("items.creeper_bow.tnt_chance", 0.5);
         double offset = plugin.getConfig().getDouble("items.creeper_bow.offset", 1);
         double velocity_multiplier = plugin.getConfig().getDouble("items.creeper_bow.velocity_multiplier", 1.0);

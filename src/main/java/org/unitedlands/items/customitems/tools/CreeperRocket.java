@@ -23,7 +23,7 @@ public class CreeperRocket extends CustomTool {
     }
 
     @Override
-    public void handleElytraBoost(Player player, PlayerElytraBoostEvent event) {
+    public void handleElytraBoost(Player player, PlayerElytraBoostEvent event, EquipmentSlot hand) {
         var customRocket = CustomStack.byItemStack(event.getItemStack());
         if (customRocket == null)
             return;
@@ -70,7 +70,7 @@ public class CreeperRocket extends CustomTool {
     }
 
     @Override
-    public void handleInteract(Player player, PlayerInteractEvent event) {
+    public void handleInteract(Player player, PlayerInteractEvent event, EquipmentSlot hand) {
         if (player.isGliding())
             return;
 
