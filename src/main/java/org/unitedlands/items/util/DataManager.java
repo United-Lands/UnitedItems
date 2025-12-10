@@ -33,7 +33,7 @@ public class DataManager {
     public void loadSaplings(Map<String, CustomSapling> saplingSets) {
         HashMap<GenericLocation, String> loadedSaplings = SerializableData.Farming.readFromDatabase("sapling.dat", HashMap.class);
         if (loadedSaplings == null || loadedSaplings.isEmpty()) {
-            Logger.log("&aNo cached saplings found.", "UnitedItems");
+            Logger.log("&aNo cached saplings found.");
             return;
         }
 
@@ -47,7 +47,7 @@ public class DataManager {
 
             Bukkit.getScheduler().runTaskLater(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> sapling.onGrow(location), 20L); // Delay to allow chunk loading
         }
-        Logger.log("Saplings successfully loaded into memory: " + saplingMap.size(), "UnitedItems");
+        Logger.log("Saplings successfully loaded into memory: " + saplingMap.size());
     }
 
     // Save saplings to storage
@@ -61,14 +61,14 @@ public class DataManager {
         });
 
         SerializableData.Farming.writeToDatabase(serializedSaplings, SAPLING_FILE);
-        Logger.log("&aSaplings saved successfully. Total saved: " + serializedSaplings.size(), "UnitedItems");
+        Logger.log("&aSaplings saved successfully. Total saved: " + serializedSaplings.size());
     }
 
     @SuppressWarnings("unchecked")
     public void loadCrops(Map<String, CustomCrop> cropSets) {
         Map<GenericLocation, CropData> loadedCrops = SerializableData.Farming.readFromDatabase(CROP_FILE, HashMap.class);
         if (loadedCrops == null || loadedCrops.isEmpty()) {
-            Logger.log("&aNo cached crops found.", "UnitedItems");
+            Logger.log("&aNo cached crops found.");
             return;
         }
 
@@ -82,7 +82,7 @@ public class DataManager {
                 growthStages.put(location, cropData.getGrowthStage());
             }
         }
-        Logger.log("&aCrops successfully loaded into memory: " + cropMap.size(), "UnitedItems");
+        Logger.log("&aCrops successfully loaded into memory: " + cropMap.size());
     }
 
     public void saveCrops() {
@@ -92,7 +92,7 @@ public class DataManager {
             serializedCrops.put(new GenericLocation(loc), new CropData(crop.getId(), stage));
         });
         SerializableData.Farming.writeToDatabase(serializedCrops, CROP_FILE);
-        Logger.log("Crops saved successfully. Total saved: " + serializedCrops.size(), "UnitedItems");
+        Logger.log("Crops saved successfully. Total saved: " + serializedCrops.size());
     }
 
     /*

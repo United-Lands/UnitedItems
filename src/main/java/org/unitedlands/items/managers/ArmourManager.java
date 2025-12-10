@@ -13,12 +13,14 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.unitedlands.items.UnitedItems;
 import org.unitedlands.items.customitems.armours.CustomArmour;
 import org.unitedlands.items.customitems.armours.GamemasterArmour;
 import org.unitedlands.items.customitems.armours.NutcrackerArmour;
+import org.unitedlands.items.util.ItemUpdater;
+import org.unitedlands.items.util.MessageProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,10 +30,10 @@ import static org.bukkit.Bukkit.getScheduler;
 public class ArmourManager implements Listener {
 
     private final Map<String, CustomArmour> armourSets = new HashMap<>();
-    private final Plugin plugin;
+    private final UnitedItems plugin;
     private static final int ONE_YEAR_TICKS = 630720000;
 
-    public ArmourManager(Plugin plugin, FileConfiguration config) {
+    public ArmourManager(UnitedItems plugin, FileConfiguration config) {
         this.plugin = plugin;
         armourSets.put("nutcracker", new NutcrackerArmour());
         armourSets.put("gamemaster", new GamemasterArmour(plugin, config));
@@ -102,6 +104,38 @@ public class ArmourManager implements Listener {
         }
     }
 
+    private boolean autoUpdateArmourToggle() {
+        return plugin.getConfig().getBoolean("update.auto-update.armour");
+    }
+
+    private void autoUpdateArmour(Player player) {
+        MessageProvider messageProvider = UnitedItems.getMessageProvider();
+
+        var inv = player.getInventory();
+        ItemStack helmet = inv.getHelmet();
+        ItemStack chest = inv.getChestplate();
+        ItemStack legs = inv.getLeggings();
+        ItemStack boots = inv.getBoots();
+
+        ItemStack newHelmet = ItemUpdater.updateItem(plugin, messageProvider, player, helmet, false);
+        ItemStack newChest = ItemUpdater.updateItem(plugin, messageProvider, player, chest, false);
+        ItemStack newLegs = ItemUpdater.updateItem(plugin, messageProvider, player, legs, false);
+        ItemStack newBoots = ItemUpdater.updateItem(plugin, messageProvider, player, boots, false);
+
+        if (newHelmet != helmet) {
+            inv.setHelmet(newHelmet);
+        }
+        if (newChest != chest) {
+            inv.setChestplate(newChest);
+        }
+        if (newLegs != legs) {
+            inv.setLeggings(newLegs);
+        }
+        if (newBoots != boots) {
+            inv.setBoots(newBoots);
+        }
+    }
+
     @EventHandler
     // Check player damage events for use of custom armour.
     public void handlePlayerDamage(EntityDamageEvent event) {
@@ -129,22 +163,37 @@ public class ArmourManager implements Listener {
     // Handle armour changes.
     public void onPlayerArmorChange(PlayerArmorChangeEvent event) {
         Player player = event.getPlayer();
-        getScheduler().runTask(plugin, () -> applyEffectsIfWearingArmor(player));
+        getScheduler().runTask(plugin, () -> {
+            if (autoUpdateArmourToggle()) {
+                autoUpdateArmour(player);
+            }
+            applyEffectsIfWearingArmor(player);
+        });
     }
-
     @EventHandler
     // Apply or remove effects when a player joins.
     public void onPlayerJoin(PlayerJoinEvent event) {
-        applyEffectsIfWearingArmor(event.getPlayer());
+        Player player = event.getPlayer();
+        getScheduler().runTask(plugin, () -> {
+            if (autoUpdateArmourToggle()) {
+                autoUpdateArmour(player);
+            }
+            applyEffectsIfWearingArmor(player);
+        });
     }
 
     @EventHandler
     // Check if the armour has broken when taking damage.
     public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            getScheduler().runTask(plugin, () -> applyEffectsIfWearingArmor(player));
-
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
         }
+        getScheduler().runTask(plugin, () -> {
+            if (autoUpdateArmourToggle()) {
+                autoUpdateArmour(player);
+            }
+            applyEffectsIfWearingArmor(player);
+        });
     }
 
     @EventHandler

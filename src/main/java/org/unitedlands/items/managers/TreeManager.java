@@ -54,7 +54,7 @@ public class TreeManager implements Listener {
         dataManager.loadSaplings(saplingSets);
 
         Bukkit.getScheduler().runTaskLater(plugin,
-                () -> Logger.log("Saplings in memory after load: " + dataManager.getSaplingCount(), "UnitedItems"), 100L);
+                () -> Logger.log("Saplings in memory after load: " + dataManager.getSaplingCount()), 100L);
     }
 
     // Detect if a held item is a custom sapling.

@@ -229,7 +229,7 @@ public class VoucherManager implements Listener {
 
         Sound sound = Registry.SOUNDS.get(key);
         if (sound == null) {
-            Logger.logWarning("[Vouchers] Unknown sound '" + name + "'. Sound disabled.", "UnitedItems");
+            Logger.logWarning("[Vouchers] Unknown sound '" + name + "'. Sound disabled.");
         }
         return sound;
     }
@@ -244,7 +244,7 @@ public class VoucherManager implements Listener {
         try {
             return Particle.valueOf(s.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ignored) {
-            Logger.logWarning("[Vouchers] Unknown particle '" + name + "'. Particle disabled.", "UnitedItems");
+            Logger.logWarning("[Vouchers] Unknown particle '" + name + "'. Particle disabled.");
             return null;
         }
     }

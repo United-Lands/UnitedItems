@@ -63,7 +63,7 @@ public class CropManager implements Listener {
         dataManager.loadCrops(cropSets);
 
         Bukkit.getScheduler().runTaskLater(plugin,
-                () -> Logger.log("Crops in memory after load: " + dataManager.getCropCount(), "UnitedItems"), 100L);
+                () -> Logger.log("Crops in memory after load: " + dataManager.getCropCount()), 100L);
     }
 
     // Detect if a crop is custom and what it is.

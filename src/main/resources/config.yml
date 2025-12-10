@@ -5,6 +5,11 @@
 ##############################################
 
 update:
+
+  # Toggle automatic updates of certain items if used.
+  auto-update:
+    armour: true
+
   "masterwork:masterwork_chestplate": "masterwork:masterwork_chestplate"
   "masterwork:masterwork_helmet": "masterwork:masterwork_helmet"
 

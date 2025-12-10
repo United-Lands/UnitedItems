@@ -264,7 +264,7 @@ public class PotionManager implements Listener {
         potionSets.entrySet().removeIf(entry -> entry.getValue() instanceof VanillaPotion);
 
         potionSets.putAll(loaded);
-        Logger.log("Reloaded " + loaded.size() + " vanilla style potions.", "UnitedItems");
+        Logger.log("Reloaded " + loaded.size() + " vanilla style potions.");
     }
 
     public void reloadPotions() {

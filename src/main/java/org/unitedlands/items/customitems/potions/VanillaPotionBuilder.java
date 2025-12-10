@@ -27,7 +27,7 @@ public class VanillaPotionBuilder {
     public Map<String, CustomPotion> loadFrom(FileConfiguration config) {
         ConfigurationSection potionsRoot = config.getConfigurationSection(ROOT_PATH);
         if (potionsRoot == null) {
-            Logger.log("No potionsRoot section found at '" + ROOT_PATH + "'. Skipping vanilla effects potion load.", "UnitedItems");
+            Logger.log("No potionsRoot section found at '" + ROOT_PATH + "'. Skipping vanilla effects potion load.");
             return Collections.emptyMap();
         }
 
@@ -36,14 +36,14 @@ public class VanillaPotionBuilder {
         for (String namespace : potionsRoot.getKeys(false)) {
             ConfigurationSection namespaceSection = potionsRoot.getConfigurationSection(namespace);
             if (namespaceSection == null) {
-                Logger.logWarning("Namespace '" + namespace + "' is not a section. Skipping.", "UnitedItems");
+                Logger.logWarning("Namespace '" + namespace + "' is not a section. Skipping.");
                 continue;
             }
 
             for (String potionId : namespaceSection.getKeys(false)) {
                 ConfigurationSection section = namespaceSection.getConfigurationSection(potionId);
                 if (section == null) {
-                    Logger.logWarning("Potion '" + namespace + "." + potionId + "' is not a section. Skipping.", "UnitedItems");
+                    Logger.logWarning("Potion '" + namespace + "." + potionId + "' is not a section. Skipping.");
                     continue;
                 }
 
@@ -53,7 +53,7 @@ public class VanillaPotionBuilder {
                 int duration = section.getInt("duration");
 
                 if (formStr == null) {
-                    Logger.logWarning("Potion config '" + namespace + "' is missing 'form'. Skipping.", "UnitedItems");
+                    Logger.logWarning("Potion config '" + namespace + "' is missing 'form'. Skipping.");
                     continue;
                 }
 
@@ -61,12 +61,12 @@ public class VanillaPotionBuilder {
                 try {
                     form = PotionForm.valueOf(formStr);
                 } catch (IllegalArgumentException ex) {
-                    Logger.logWarning("Potion config '" + namespace + "' has an invalid form '" + formStr + "'. Skipping.", "UnitedItems");
+                    Logger.logWarning("Potion config '" + namespace + "' has an invalid form '" + formStr + "'. Skipping.");
                     continue;
                 }
 
                 if (effectStr == null) {
-                    Logger.logWarning("Potion config '" + namespace + "' is missing 'effect'. Skipping.", "UnitedItems");
+                    Logger.logWarning("Potion config '" + namespace + "' is missing 'effect'. Skipping.");
                     continue;
                 }
 
@@ -74,12 +74,12 @@ public class VanillaPotionBuilder {
                 PotionEffectType effect = org.bukkit.Registry.EFFECT.get(effectKey);
 
                 if (effect == null) {
-                    Logger.logWarning("Potion config '" + namespace + "' has unknown effect '" + effectStr + "'. Skipping.", "UnitedItems");
+                    Logger.logWarning("Potion config '" + namespace + "' has unknown effect '" + effectStr + "'. Skipping.");
                     continue;
                 }
 
                 if (duration <= 0) {
-                    Logger.logWarning("Potion config '" + namespace + "' has non-positive duration " + duration + ". Skipping.", "UnitedItems");
+                    Logger.logWarning("Potion config '" + namespace + "' has non-positive duration " + duration + ". Skipping.");
                     continue;
                 }
 
@@ -87,12 +87,12 @@ public class VanillaPotionBuilder {
 
                 result.put(fullKey, new VanillaPotion(form, effect, amplifier, duration));
                 Logger.log("Loaded potion config '" + namespace + "' (" + form + ", " +
-                        effect.getKey().getKey() + ", amp=" + amplifier + ", dur=" + duration + "t)", "UnitedItems");
+                        effect.getKey().getKey() + ", amp=" + amplifier + ", dur=" + duration + "t)");
             }
         }
 
             if (result.isEmpty()) {
-                Logger.log("No valid potions were loaded from '" + ROOT_PATH + "'.", "UnitedItems");
+                Logger.log("No valid potions were loaded from '" + ROOT_PATH + "'.");
             }
 
             return result;
