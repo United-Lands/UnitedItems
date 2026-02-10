@@ -1,6 +1,5 @@
 package org.unitedlands.items.managers;
 
-import dev.lone.itemsadder.api.CustomStack;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.data.DataMutateResult;
@@ -20,6 +19,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.unitedlands.UnitedLib;
 import org.unitedlands.items.UnitedItems;
 import org.unitedlands.utils.Logger;
 import org.unitedlands.utils.Messenger;
@@ -143,23 +143,18 @@ public class VoucherManager implements Listener {
     // Derive the permission name dynamically from the item namespace.
     // For example, prefixes:prefixbear will return the permission chatprefix.bear
     public String derivePermission(ItemStack item) {
-        CustomStack cs = CustomStack.byItemStack(item);
-        if (cs == null)
+        
+        String id = UnitedLib.getInstance().getItemFactory().getId(item);
+        if (id.isEmpty())
             return null;
 
-        String id = cs.getNamespacedID();
-        if (id == null)
-            return null;
+        String path = id;
 
         int colon = id.indexOf(':');
-        if (colon < 0)
-            return null;
-
-        String namespace = id.substring(0, colon);
-        String path = id.substring(colon + 1);
-
-        if (!namespace.equalsIgnoreCase(cfgNamespace))
-            return null;
+        if (colon >= 0) {
+            path = id.substring(colon + 1);
+        }
+        
         if (!path.regionMatches(true, 0, cfgPathPrefix, 0, cfgPathPrefix.length()))
             return null;
 

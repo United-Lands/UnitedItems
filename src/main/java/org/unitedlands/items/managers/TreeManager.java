@@ -1,7 +1,5 @@
 package org.unitedlands.items.managers;
 
-import dev.lone.itemsadder.api.CustomBlock;
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,6 +17,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.unitedlands.UnitedLib;
 import org.unitedlands.items.customitems.saplings.*;
 import org.unitedlands.items.util.DataManager;
 import org.unitedlands.items.util.PermissionsManager;
@@ -61,8 +60,8 @@ public class TreeManager implements Listener {
     public CustomSapling detectSapling(ItemStack item) {
         if (item == null || item.getType() == Material.AIR)
             return null;
-        CustomStack customStack = CustomStack.byItemStack(item);
-        return (customStack != null) ? saplingSets.get(customStack.getId().toLowerCase()) : null;
+
+        return saplingSets.get(UnitedLib.getInstance().getItemFactory().getId(item).toLowerCase());
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
@@ -216,11 +215,7 @@ public class TreeManager implements Listener {
                         if (sapling.isUsingVanillaStem()) {
                             blockLocation.getBlock().setType(sapling.getStemBlock());
                         } else if (sapling.getStemReplaceBlockName() != null) {
-                            CustomBlock placedBlock = CustomBlock.place(sapling.getStemReplaceBlockName(),
-                                    blockLocation);
-                            if (placedBlock == null) {
-                                blockLocation.getBlock().setType(sapling.getStemBlock());
-                            }
+                            UnitedLib.getInstance().getItemFactory().placeBlock(sapling.getStemReplaceBlockName(), location);
                         }
                     }
 
@@ -230,7 +225,7 @@ public class TreeManager implements Listener {
                             blockLocation.getBlock().setType(Material.AIR);
                             String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName()
                                     : sapling.getCustomLeavesName();
-                            CustomBlock.place(leafType, blockLocation);
+                            UnitedLib.getInstance().getItemFactory().placeBlock(leafType, location);
                         }
                     }
                 }

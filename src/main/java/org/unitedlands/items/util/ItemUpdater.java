@@ -1,6 +1,5 @@
 package org.unitedlands.items.util;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -8,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.unitedlands.UnitedLib;
 import org.unitedlands.items.UnitedItems;
 import org.unitedlands.utils.Logger;
 import org.unitedlands.utils.Messenger;
@@ -33,14 +33,16 @@ public final class ItemUpdater {
             return original;
         }
 
+        var itemFactory = UnitedLib.getInstance().getItemFactory();
+
         ConfigurationSection updateSection = plugin.getConfig().getConfigurationSection("update");
         if (updateSection == null) {
             return original;
         }
         Set<String> keys = updateSection.getKeys(false);
 
-        CustomStack customStack = CustomStack.byItemStack(original);
-        if (customStack == null) {
+        
+        if (!itemFactory.isCustomItem(original)) {
             if (sendMessages && messageProvider != null) {
                 Messenger.sendMessage(player, messageProvider.get("messages.update-no-custom-item"), null,
                         messageProvider.get("messages.prefix"));
@@ -48,7 +50,7 @@ public final class ItemUpdater {
             return original;
         }
 
-        String fromId = customStack.getNamespacedID();
+        String fromId = itemFactory.getId(original);
         if (!keys.contains(fromId)) {
             if (sendMessages && messageProvider != null) {
                 Messenger.sendMessage(player, messageProvider.get("messages.update-error"), null,
@@ -72,7 +74,7 @@ public final class ItemUpdater {
                     messageProvider.get("messages.prefix"));
         }
 
-        ItemStack newItem = CustomStack.getInstance(targetId).getItemStack();
+        ItemStack newItem = itemFactory.getItemStack(targetId, 1);
 
         ItemMeta oldMeta = original.getItemMeta();
         ItemMeta newMeta = newItem.getItemMeta();

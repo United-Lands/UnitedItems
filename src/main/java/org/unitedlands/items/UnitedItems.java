@@ -1,6 +1,7 @@
 package org.unitedlands.items;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.unitedlands.classes.ConfigFile;
 import org.unitedlands.items.commands.UnitedItemsCommands;
 import org.unitedlands.items.commands.UpdateItemCommand;
 import org.unitedlands.items.managers.*;
@@ -14,13 +15,17 @@ public class UnitedItems extends JavaPlugin {
 
     private static MessageProvider messageProvider;
 
+    private ConfigFile cropsConfig;
+
     private PotionManager potionManager;
     private VoucherManager voucherManager;
     private DataManager dataManager;
 
     @Override
     public void onEnable() {
+
         saveDefaultConfig();
+        loadConfigs();
 
         messageProvider = new MessageProvider(getConfig());
 
@@ -43,6 +48,14 @@ public class UnitedItems extends JavaPlugin {
 
         Objects.requireNonNull(getCommand("uniteditems")).setExecutor(new UnitedItemsCommands(this, messageProvider));
         Objects.requireNonNull(getCommand("updateitem")).setExecutor(new UpdateItemCommand(this, messageProvider));
+    }
+
+    public void loadConfigs() {
+        cropsConfig = new ConfigFile(this, "crops.yml");
+    }
+
+    public ConfigFile getCropsConfig() {
+        return cropsConfig;
     }
 
     public VoucherManager getVoucherManager() {

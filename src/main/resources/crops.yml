@@ -1,0 +1,366 @@
+blueberry:
+  stages:
+    growth:
+      - blueberry_stage_1
+      - blueberry_stage_2
+      - blueberry_stage_3
+    final: blueberry_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: blueberry_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - FLOWER_FOREST
+    - BIRCH_FOREST
+    - TAIGA
+  persistent-harvest: true
+  drop-item: blueberry
+  drop-amount: 3
+bell_pepper:
+  stages:
+    growth:
+      - bell_pepper_stage_1
+      - bell_pepper_stage_2
+      - bell_pepper_stage_3
+    final: bell_pepper_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: bell_pepper_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - FLOWER_FOREST
+    - BIRCH_FOREST
+    - JUNGLE
+    - SPARSE_JUNGLE
+  persistent-harvest: true
+  drop-item: bell_pepper
+  drop-amount: 2
+broccoli:
+  stages:
+    growth:
+      - broccoli_stage_1
+      - broccoli_stage_2
+      - broccoli_stage_3
+    final: broccoli_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: broccoli_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - BIRCH_FOREST
+    - FLOWER_FOREST
+    - TAIGA
+  persistent-harvest: false
+  drop-item: broccoli
+  drop-amount: 2
+celery:
+  stages:
+    growth:
+      - celery_stage_1
+      - celery_stage_2
+      - celery_stage_3
+    final: celery_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: celery_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - BIRCH_FOREST
+    - FLOWER_FOREST
+    - TAIGA
+  persistent-harvest: false
+  drop-item: celery
+  drop-amount: 2
+chilipepper:
+  stages:
+    growth:
+      - chili_pepper_stage_1
+      - chili_pepper_stage_2
+      - chili_pepper_stage_3
+    final: chili_pepper_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: chili_pepper_seeds
+  allowed-biomes:
+    - DESERT
+    - SAVANNA
+    - WINDSWEPT_SAVANNA
+    - SAVANNA_PLATEAU
+    - JUNGLE
+    - SPARSE_JUNGLE
+  persistent-harvest: true
+  drop-item: chili_pepper
+  drop-amount: 2
+coffeeplant:
+  stages:
+    growth:
+      - coffee_plant_stage_1
+      - coffee_plant_stage_2
+      - coffee_plant_stage_3
+    final: coffee_plant_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: coffee_bean
+  allowed-biomes:
+    - DESERT
+    - JUNGLE
+    - SPARSE_JUNGLE
+  persistent-harvest: true
+  drop-item: coffee_bean
+  drop-amount: 3
+corn:
+  stages:
+    growth:
+      - corn_stage_1
+      - corn_stage_2
+      - corn_stage_3
+    final: corn_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: corn_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - BIRCH_FOREST
+    - FLOWER_FOREST
+    - SAVANNA
+    - WINDSWEPT_SAVANNA
+    - SAVANNA_PLATEAU
+  persistent-harvest: false
+  drop-item: corn
+  drop-amount: 3
+cucumber:
+  stages:
+    growth:
+      - cucumber_stage_1
+      - cucumber_stage_2
+      - cucumber_stage_3
+    final: cucumber_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: cucumber_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - BIRCH_FOREST
+    - FLOWER_FOREST
+    - JUNGLE
+    - SPARSE_JUNGLE
+  persistent-harvest: false
+  drop-item: cucumber
+  drop-amount: 2
+garlic:
+  stages:
+    growth:
+      - garlic_stage_1
+      - garlic_stage_2
+      - garlic_stage_3
+    final: garlic_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: garlic
+  allowed-biomes:
+  persistent-harvest: false
+  drop-item: garlic
+  drop-amount: 2
+grapes:
+  stages:
+    growth:
+      - grapes_stage_1
+      - grapes_stage_2
+      - grapes_stage_3
+    final: grapes_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: grapes_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - BIRCH_FOREST
+    - FLOWER_FOREST
+    - SAVANNA
+    - WINDSWEPT_SAVANNA
+    - SAVANNA_PLATEAU
+  persistent-harvest: true
+  drop-item: grapes
+  drop-amount: 3
+lettuce:
+  stages:
+    growth:
+      - lettuce_stage_1
+      - lettuce_stage_2
+      - lettuce_stage_3
+    final: lettuce_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: lettuce_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - BIRCH_FOREST
+    - FLOWER_FOREST
+    - TAIGA
+  persistent-harvest: false
+  drop-item: lettuce
+  drop-amount: 2
+onion:
+  stages:
+    growth:
+      - onion_stage_1
+      - onion_stage_2
+      - onion_stage_3
+    final: onion_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: lettuce_seeds
+  allowed-biomes:
+  persistent-harvest: false
+  drop-item: onion
+  drop-amount: 3
+pea:
+  stages:
+    growth:
+      - peas_stage_1
+      - peas_stage_2
+      - peas_stage_3
+    final: peas_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: pea_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - BIRCH_FOREST
+    - FLOWER_FOREST
+    - TAIGA
+  persistent-harvest: false
+  drop-item: peas
+  drop-amount: 3
+peanut:
+  stages:
+    growth:
+      - peanut_stage_1
+      - peanut_stage_2
+      - peanut_stage_3
+    final: peanut_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: peanut
+  allowed-biomes:
+    - PLAINS
+    - SAVANNA
+    - WINDSWEPT_SAVANNA
+    - SAVANNA_PLATEAU
+  persistent-harvest: false
+  drop-item: peanuts
+  drop-amount: 2
+pineapple:
+  stages:
+    growth:
+      - pineapple_stage_1
+      - pineapple_stage_2
+      - pineapple_stage_3
+    final: pineapple_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: pineapple
+  allowed-biomes:
+    - JUNGLE
+    - SPARSE_JUNGLE
+  persistent-harvest: true
+  drop-item: pineapple
+  drop-amount: 1
+raspberry:
+  stages:
+    growth:
+      - raspberry_stage_1
+      - raspberry_stage_2
+      - raspberry_stage_3
+    final: raspberry_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: raspberry_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - BIRCH_FOREST
+    - FLOWER_FOREST
+    - TAIGA
+  persistent-harvest: true
+  drop-item: raspberry
+  drop-amount: 3
+rice:
+  stages:
+    growth:
+      - rice_stage_1
+      - rice_stage_2
+      - rice_stage_3
+    final: rice_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: rice_seeds
+  allowed-biomes:
+    - PLAINS
+    - SWAMP
+    - JUNGLE
+    - SPARSE_JUNGLE
+  persistent-harvest: false
+  drop-item: rice
+  drop-amount: 2
+soybean:
+  stages:
+    growth:
+      - soy_beans_stage_1
+      - soy_beans_stage_2
+      - soy_beans_stage_3
+    final: soy_beans_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: soy_bean_seeds
+  allowed-biomes:
+  persistent-harvest: false
+  drop-item: soy_beans
+  drop-amount: 3
+strawberry:
+  stages:
+    growth:
+      - strawberry_stage_1
+      - strawberry_stage_2
+      - strawberry_stage_3
+    final: strawberry_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: strawberry_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - BIRCH_FOREST
+    - FLOWER_FOREST
+    - TAIGA
+  persistent-harvest: false
+  drop-item: strawberry
+  drop-amount: 3
+tomato:
+  stages:
+    growth:
+      - tomato_stage_1
+      - tomato_stage_2
+      - tomato_stage_3
+    final: tomato_stage_4
+  valid-soils:
+    - FARMLAND
+  seed-item: tomato_seeds
+  allowed-biomes:
+    - PLAINS
+    - FOREST
+    - BIRCH_FOREST
+    - FLOWER_FOREST
+    - JUNGLE
+    - SPARSE_JUNGLE
+  persistent-harvest: true
+  drop-item: tomato
+  drop-amount: 2
