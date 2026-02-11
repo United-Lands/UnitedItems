@@ -16,10 +16,12 @@ public class UnitedItems extends JavaPlugin {
     private static MessageProvider messageProvider;
 
     private ConfigFile cropsConfig;
+    private ConfigFile recipeConfig;
 
     private PotionManager potionManager;
     private VoucherManager voucherManager;
     private DataManager dataManager;
+    private CustomRecipeManager customRecipeManager;
 
     @Override
     public void onEnable() {
@@ -38,6 +40,8 @@ public class UnitedItems extends JavaPlugin {
         TreeManager treeManager = new TreeManager(this, permissionsManager, dataManager);
         voucherManager = new VoucherManager(this);
 
+        customRecipeManager = new CustomRecipeManager(this);
+
         var pm = getServer().getPluginManager();
         pm.registerEvents(armourManager, this);
         pm.registerEvents(cropManager, this);
@@ -45,6 +49,7 @@ public class UnitedItems extends JavaPlugin {
         pm.registerEvents(toolManager, this);
         pm.registerEvents(treeManager, this);
         pm.registerEvents(voucherManager, this);
+        pm.registerEvents(customRecipeManager, this);
 
         Objects.requireNonNull(getCommand("uniteditems")).setExecutor(new UnitedItemsCommands(this, messageProvider));
         Objects.requireNonNull(getCommand("updateitem")).setExecutor(new UpdateItemCommand(this, messageProvider));
@@ -52,10 +57,15 @@ public class UnitedItems extends JavaPlugin {
 
     public void loadConfigs() {
         cropsConfig = new ConfigFile(this, "crops.yml");
+        recipeConfig = new ConfigFile(this, "recipes.yml");
     }
 
     public ConfigFile getCropsConfig() {
         return cropsConfig;
+    }
+
+    public ConfigFile getRecipeConfig() {
+        return recipeConfig;
     }
 
     public VoucherManager getVoucherManager() {
@@ -64,6 +74,10 @@ public class UnitedItems extends JavaPlugin {
 
     public PotionManager getPotionManager() {
         return potionManager;
+    }
+
+    public CustomRecipeManager getCustomRecipeManager() {
+        return customRecipeManager;
     }
 
     public static MessageProvider getMessageProvider() {

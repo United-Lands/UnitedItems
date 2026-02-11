@@ -90,6 +90,8 @@ public class CreeperRocket extends CustomTool {
         var itemFactory = UnitedLib.getInstance().getItemFactory();
         for (int i = 0; i < inv.getSize(); i++) {
             var item = inv.getItem(i);
+            if (item == null || item.getType() == Material.AIR)
+                continue;
             var itemId = itemFactory.getId(item);
             if (itemId.equals(refillItemId)) {
                 index = i;
@@ -150,9 +152,11 @@ public class CreeperRocket extends CustomTool {
     }
 
     private void setRocketUsages(ItemStack item, int usages) {
-        var pdc = item.getItemMeta().getPersistentDataContainer();
+        var meta = item.getItemMeta();
+        var pdc = meta.getPersistentDataContainer();
         var key = new NamespacedKey(plugin, KEY);
         pdc.set(key, PersistentDataType.INTEGER, usages);
+        item.setItemMeta(meta);
     }
 
 }

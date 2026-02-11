@@ -1,0 +1,9 @@
+"nexo:potato_test":
+  return-items:
+    1:
+      item: knife
+      damage: 1
+  additional-items:
+    1:
+      item: STONE
+      amount: 2

@@ -89,12 +89,6 @@
     <dependencies>
         <dependency>
             <groupId>org.unitedlands</groupId>
-            <artifactId>UnitedSkills</artifactId>
-            <version>3.6.11</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.unitedlands</groupId>
             <artifactId>UnitedLib</artifactId>
             <version>1.0</version>
             <scope>provided</scope>

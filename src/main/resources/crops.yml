@@ -216,7 +216,7 @@ onion:
     final: onion_stage_4
   valid-soils:
     - FARMLAND
-  seed-item: lettuce_seeds
+  seed-item: onion
   allowed-biomes:
   persistent-harvest: false
   drop-item: onion
