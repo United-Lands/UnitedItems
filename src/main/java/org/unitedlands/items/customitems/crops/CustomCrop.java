@@ -1,42 +1,78 @@
 package org.unitedlands.items.customitems.crops;
 
-import dev.lone.itemsadder.api.CustomBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Farmland;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.unitedlands.UnitedLib;
+import org.unitedlands.items.UnitedItems;
 import org.unitedlands.items.util.DataManager;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.Objects;
 
+public class CustomCrop {
 
-public abstract class CustomCrop {
-
-    private final String id;
-    private final List<String> growthStages;
-    private final String finalStage;
-    private final Set<Material> validSoils;
-    private final String seedItemId;
-    private final Set<Biome> allowedBiomes;
+    private final UnitedItems plugin;
     private static final Random random = new Random();
-    private final boolean isPersistentHarvest;
 
-    public CustomCrop(String id, List<String> growthStages, String finalStage, Set<Material> validSoils, String seedItemId, Set<Biome> allowedBiomes, boolean isPersistentHarvest) {
-        this.id = id;
-        this.growthStages = growthStages;
-        this.finalStage = finalStage;
+    private String id;
+    private List<String> growthStages;
+    private String finalStage;
+    private Set<Material> validSoils;
+    private String seedItemId;
+    private Set<Biome> allowedBiomes;
+    private boolean isPersistentHarvest;
+    private String dropItem;
+    private int dropAmount;
+
+    public CustomCrop(UnitedItems plugin, String key) {
+        this.plugin = plugin;
+        loadCrop(key);
+    }
+
+    public void loadCrop(String key) {
+
+        var config = plugin.getCropsConfig().get();
+
+        this.id = key;
+        this.growthStages = config.getStringList(key + ".stages.growth");
+        this.finalStage = config.getString(key + ".stages.final");
+
+        Set<Material> validSoils = new HashSet<>();
+        for (String soil : config.getStringList(key + ".valid-soils")) {
+            validSoils.add(Material.getMaterial(soil));
+        }
         this.validSoils = validSoils;
-        this.seedItemId = seedItemId;
+        this.seedItemId = config.getString(key + ".seed-item");
+
+        Registry<Biome> biomeRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME);
+        Set<Biome> allowedBiomes = new HashSet<>();
+        for (String biome : config.getStringList(key + ".allowed-biomes")) {
+            var biomeKey = biome.toLowerCase();
+            Biome optionalBiome = biomeRegistry.get(new NamespacedKey("minecraft", biomeKey));
+            if (optionalBiome != null)
+                allowedBiomes.add(optionalBiome);
+        }
         this.allowedBiomes = allowedBiomes;
-        this.isPersistentHarvest = isPersistentHarvest;
+
+        this.isPersistentHarvest = config.getBoolean(key + ".persistent-harvest");
+        this.dropItem = config.getString(key + ".drop-item");
+        this.dropAmount = config.getInt(key + ".drop-amount");
     }
 
     public void startRandomGrowthTask(Location location, DataManager dataManager) {
@@ -102,9 +138,9 @@ public abstract class CustomCrop {
     public void placeCrop(Location location, int growthStage) {
         int adjustedStage = Math.max(growthStage - 1, 0);
         if (adjustedStage < growthStages.size()) {
-            CustomBlock.place(growthStages.get(adjustedStage), location);
+            UnitedLib.getInstance().getItemFactory().placeBlock(growthStages.get(adjustedStage), location);
         } else {
-            CustomBlock.place(finalStage, location);
+            UnitedLib.getInstance().getItemFactory().placeBlock(finalStage, location);
         }
     }
 
@@ -117,7 +153,8 @@ public abstract class CustomCrop {
     }
 
     public void harvestWithoutBreaking(Location location, Player player, DataManager dataManager) {
-        if (!canBeHarvestedWithoutBreaking()) return;
+        if (!canBeHarvestedWithoutBreaking())
+            return;
 
         int growthStage = dataManager.getCropStage(location);
 
@@ -134,16 +171,44 @@ public abstract class CustomCrop {
         placeCrop(location, 1);
 
         // Restart natural growth.
-        Bukkit.getScheduler().runTaskLater(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")), () -> startRandomGrowthTask(location, dataManager), 20 * 5); // 5-second delay before regrowing starts.
+        Bukkit.getScheduler().runTaskLater(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("UnitedItems")),
+                () -> startRandomGrowthTask(location, dataManager), 20 * 5); // 5-second delay before regrowing starts.
     }
 
-    public abstract List<ItemStack> getHarvestDrops();
+    public List<ItemStack> getHarvestDrops() {
+        var dropItem = UnitedLib.getInstance().getItemFactory().getItemStack(this.dropItem, dropAmount);
+        if (dropItem == null)
+            return new ArrayList<>();
+        return List.of(dropItem);
+    }
 
-    public abstract int getMaxGrowthStage();
+    public int getMaxGrowthStage() {
+        return growthStages.size() + 1;
+    }
 
-    public abstract void onPlant(Player player, Location location);
+    public void onPlant(Player player, Location location) {
 
-    public abstract void onGrow(Location location);
+    }
 
-    public abstract void onHarvest(Location location, Player player);
+    public void onGrow(Location location) {
+
+    }
+
+    public void onPrematureHarvest(Location location) {
+        var seed = UnitedLib.getInstance().getItemFactory().getItemStack(seedItemId, 1);
+        if (seed != null) {
+            location.getWorld().dropItemNaturally(location, seed);
+        }
+    }
+
+    public void onHarvest(Location location) {
+        var seed = UnitedLib.getInstance().getItemFactory().getItemStack(seedItemId, 1, getMaxGrowthStage() + 1);
+        if (seed != null) {
+            location.getWorld().dropItemNaturally(location, seed);
+        }
+        var drop = UnitedLib.getInstance().getItemFactory().getItemStack(dropItem, dropAmount);
+        if (seed != null) {
+            location.getWorld().dropItemNaturally(location, drop);
+        }
+    }
 }

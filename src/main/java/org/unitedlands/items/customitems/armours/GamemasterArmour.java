@@ -1,16 +1,17 @@
 package org.unitedlands.items.customitems.armours;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import org.unitedlands.UnitedLib;
 import org.unitedlands.items.UnitedItems;
 import org.unitedlands.utils.Messenger;
 
@@ -29,17 +30,19 @@ public class GamemasterArmour extends CustomArmour {
 
     private void updateArmourState(ItemStack item) {
         // Get the custom item and check durability.
-        CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null) {
-            return; // Skip non-custom items.
-        }
-
-        int currentDurability = customStack.getDurability();
+        if (!UnitedLib.getInstance().getItemFactory().isCustomItem(item))
+            return;
 
         // Get item metadata.
         ItemMeta meta = item.getItemMeta();
         if (meta == null) {
             return;
+        }
+
+        int currentDurability = Integer.MAX_VALUE;
+        if (meta instanceof Damageable damageable)
+        {
+            currentDurability = damageable.getDamage();
         }
 
         PersistentDataContainer container = meta.getPersistentDataContainer();

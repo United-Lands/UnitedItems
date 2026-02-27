@@ -1,7 +1,6 @@
 package org.unitedlands.items.managers;
 
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -20,6 +19,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
+import org.unitedlands.UnitedLib;
 import org.unitedlands.items.customitems.tools.*;
 import org.unitedlands.items.util.PermissionsManager;
 
@@ -48,6 +48,8 @@ public class ToolManager implements Listener {
         toolSets.put("telekinetic_wand", new TelekineticWand(plugin));
         toolSets.put("creeper_bow", new CreeperBow(plugin));
         toolSets.put("creeper_rocket", new CreeperRocket(plugin));
+        toolSets.put("kraken_sabre", new KrakenSabre(plugin));
+        toolSets.put("banana_sabre", new BananaSabre(plugin));
     }
 
     // Detect if the player is holding a registered tool.
@@ -74,8 +76,12 @@ public class ToolManager implements Listener {
             return false;
         }
 
-        CustomStack customStack = CustomStack.byItemStack(item);
-        return customStack != null && customStack.getId().contains(toolId);
+        if (UnitedLib.getInstance().getItemFactory().isCustomItem(item))
+        {
+            if (UnitedLib.getInstance().getItemFactory().getId(item).contains(toolId))
+                return true;
+        }
+        return false;
     }
 
     // Apply effects for the detected tool.

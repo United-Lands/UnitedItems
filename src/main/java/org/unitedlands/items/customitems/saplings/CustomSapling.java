@@ -1,11 +1,11 @@
 package org.unitedlands.items.customitems.saplings;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.unitedlands.UnitedLib;
 
 import java.util.Set;
 
@@ -53,8 +53,8 @@ public abstract class CustomSapling {
     }
 
     public ItemStack getSeedItem() {
-        CustomStack customStack = CustomStack.getInstance(id);
-        return customStack != null ? customStack.getItemStack() : new ItemStack(Material.AIR);
+        var customStack = UnitedLib.getInstance().getItemFactory().getItemStack(id, 1);
+        return customStack != null ? customStack : new ItemStack(Material.AIR);
     }
 
     public Material getVanillaSapling() {

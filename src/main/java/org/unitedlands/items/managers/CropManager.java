@@ -1,6 +1,5 @@
 package org.unitedlands.items.managers;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,7 +17,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
+import org.unitedlands.UnitedLib;
+import org.unitedlands.items.UnitedItems;
 import org.unitedlands.items.customitems.crops.*;
 import org.unitedlands.items.util.DataManager;
 import org.unitedlands.items.util.PermissionsManager;
@@ -35,30 +35,16 @@ public class CropManager implements Listener {
     private final DataManager dataManager;
     private final PermissionsManager permissionsManager;
 
-    public CropManager(PermissionsManager permissionsManager, Plugin plugin, DataManager dataManager) {
+    public CropManager(PermissionsManager permissionsManager, UnitedItems plugin, DataManager dataManager) {
         this.permissionsManager = permissionsManager;
         this.dataManager = dataManager;
 
-        cropSets.put("bellpepper", new BellPepper());
-        cropSets.put("blueberry", new Blueberry());
-        cropSets.put("broccoli", new Broccoli());
-        cropSets.put("celery", new Celery());
-        cropSets.put("chilipepper", new ChiliPepper());
-        cropSets.put("coffeeplant", new CoffeePlant());
-        cropSets.put("corn", new Corn());
-        cropSets.put("cucumber", new Cucumber());
-        cropSets.put("garlic", new Garlic());
-        cropSets.put("grapes", new Grapes());
-        cropSets.put("lettuce", new Lettuce());
-        cropSets.put("onion", new Onion());
-        cropSets.put("pea", new Pea());
-        cropSets.put("peanut", new Peanut());
-        cropSets.put("pineapple", new Pineapple());
-        cropSets.put("raspberry", new Raspberry());
-        cropSets.put("rice", new Rice());
-        cropSets.put("soybean", new SoyBean());
-        cropSets.put("strawberry", new Strawberry());
-        cropSets.put("tomato", new Tomato());
+        var cropConfig = plugin.getCropsConfig().get();
+        var cropKeys = cropConfig.getKeys(false);
+
+        for (String key : cropKeys) {
+            cropSets.put(key, new CustomCrop(plugin, key));
+        }
 
         dataManager.loadCrops(cropSets);
 
@@ -70,17 +56,16 @@ public class CropManager implements Listener {
     public CustomCrop detectCrop(ItemStack item) {
         if (item == null || item.getType() == Material.AIR)
             return null;
-        CustomStack customStack = CustomStack.byItemStack(item);
 
-        if (customStack == null)
-            return null;
-
-        // Check if item is a seed instead of a fully-grown crop.
-        for (CustomCrop crop : cropSets.values()) {
-            if (customStack.getId().equalsIgnoreCase(crop.getSeedItemId())) {
-                return crop; // Return the crop that corresponds to this seed.
+        if (UnitedLib.getInstance().getItemFactory().isCustomItem(item)) {
+            // Check if item is a seed instead of a fully-grown crop.
+            for (CustomCrop crop : cropSets.values()) {
+                if (UnitedLib.getInstance().getItemFactory().getId(item).contains(crop.getSeedItemId())) {
+                    return crop; // Return the crop that corresponds to this seed.
+                }
             }
         }
+
         return null;
     }
 
@@ -204,19 +189,22 @@ public class CropManager implements Listener {
         Location loc = event.getBlock().getLocation();
         if (!dataManager.hasCrop(loc))
             return;
-        Player player = event.getPlayer();
+
         CustomCrop crop = dataManager.getCrop(loc);
         int growthStage = dataManager.getCropStage(loc);
 
         // If fully grown, harvest it.
         if (crop.isFullyGrown(growthStage)) {
-            crop.onHarvest(loc, player);
+            crop.onHarvest(loc);
             dataManager.removeCrop(loc);
+            loc.getBlock().setType(Material.AIR);
         } else {
             // Otherwise, break the crop.
+            crop.onPrematureHarvest(loc);
             dataManager.removeCrop(loc);
             loc.getBlock().setType(Material.AIR);
         }
+
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -266,6 +254,5 @@ public class CropManager implements Listener {
             }
         }
     }
-
 
 }

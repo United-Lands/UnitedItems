@@ -2,7 +2,6 @@ package org.unitedlands.items.managers;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.ExperienceOrb;
@@ -15,9 +14,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.unitedlands.UnitedLib;
 import org.unitedlands.items.UnitedItems;
 import org.unitedlands.items.customitems.armours.CustomArmour;
 import org.unitedlands.items.customitems.armours.GamemasterArmour;
+import org.unitedlands.items.customitems.armours.KrakenArmour;
 import org.unitedlands.items.customitems.armours.NutcrackerArmour;
 import org.unitedlands.items.util.ItemUpdater;
 import org.unitedlands.items.util.MessageProvider;
@@ -37,6 +38,7 @@ public class ArmourManager implements Listener {
         this.plugin = plugin;
         armourSets.put("nutcracker", new NutcrackerArmour());
         armourSets.put("gamemaster", new GamemasterArmour(plugin, config));
+        armourSets.put("kraken", new KrakenArmour(plugin, config));
     }
 
     // Detect if the player is wearing a full set of a registered armour.
@@ -72,8 +74,12 @@ public class ArmourManager implements Listener {
             return false;
         }
 
-        CustomStack customStack = CustomStack.byItemStack(item);
-        return customStack != null && customStack.getId().contains(setId);
+        if (UnitedLib.getInstance().getItemFactory().isCustomItem(item))
+        {
+            if (UnitedLib.getInstance().getItemFactory().getId(item).contains(setId))
+                return true;
+        }
+        return false;
     }
 
     // Apply effects if armour is worn.

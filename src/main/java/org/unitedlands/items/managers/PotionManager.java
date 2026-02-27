@@ -1,6 +1,5 @@
 package org.unitedlands.items.managers;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.AreaEffectCloud;
@@ -21,6 +20,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.unitedlands.UnitedLib;
 import org.unitedlands.items.customitems.potions.*;
 import org.unitedlands.utils.Logger;
 
@@ -233,21 +233,16 @@ public class PotionManager implements Listener {
     private String findPotionKey(ItemStack item) {
         if (item == null || item.getType().isAir()) return null;
 
-        var cs = CustomStack.byItemStack(item);
-        if (cs == null) {
-            return null;
-        }
-
-        String iaId = cs.getId().toLowerCase();
+        String id = UnitedLib.getInstance().getItemFactory().getId(item);
 
         for (String key : potionSets.keySet()) {
             String reg = key.toLowerCase();
 
-            if (reg.equals(iaId)) {
+            if (reg.equals(id)) {
                 return key;
             }
 
-            if (reg.endsWith(":" + iaId)) {
+            if (reg.endsWith(":" + id)) {
                 return key;
             }
         }

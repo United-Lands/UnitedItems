@@ -31,11 +31,15 @@ public class UnitedItemsCommands implements CommandExecutor {
         if (args[0].equalsIgnoreCase("reload"))
         {
             plugin.reloadConfig();
+            plugin.getCropsConfig().reload();
+            plugin.getRecipeConfig().reload();
+            
             UnitedItems.getMessageProvider().reload(plugin.getConfig());
 
             plugin.getPotionManager().reloadPotions();
             plugin.getVoucherManager().reload();
-
+            plugin.getCustomRecipeManager().loadRecipes();
+            
             Messenger.sendMessage(sender, messageProvider.get("messages.reload"), null, messageProvider.get("messages.prefix"));
         }
 

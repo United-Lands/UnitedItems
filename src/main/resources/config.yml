@@ -80,6 +80,17 @@ items:
     refill-item: "dungeons:charged_gunpowder"
     max-usages: 256
     usages-per-refill: 4
+  kraken-armour:
+    cooldown: 60 # in seconds
+    assistant-commands:
+    - "mm test cast Kraken_Summon_Dead_Adventurer_Assistant"
+    - "mm test cast Kraken_Summon_Tentacle_Assistant"
+  kraken-sabre:
+    lightning-chance: 1.0
+    lightning-damage: 5
+  banana-sabre:
+    slip-chance: 1.0
+    slip-strength: 5
 
 ##############################################
 # +----------------------------------------+ #

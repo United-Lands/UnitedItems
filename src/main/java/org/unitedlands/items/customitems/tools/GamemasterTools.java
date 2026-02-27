@@ -1,6 +1,5 @@
 package org.unitedlands.items.customitems.tools;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -38,20 +37,20 @@ public class GamemasterTools extends CustomTool {
             return;
         }
 
+        // Get item metadata.
         ItemMeta meta = item.getItemMeta();
-        if (!(meta instanceof Damageable)) {
+        if (meta == null) {
             return;
+        }
+
+        int currentDurability = Integer.MAX_VALUE;
+        if (meta instanceof Damageable damageable)
+        {
+            currentDurability = damageable.getMaxDamage() - damageable.getDamage();
         }
 
         PersistentDataContainer container = meta.getPersistentDataContainer();
         NamespacedKey brokenKey = new NamespacedKey(plugin, "broken");
-
-        CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null) {
-            return;
-        }
-
-        int currentDurability = customStack.getDurability();
 
         // Mark as broken if durability falls below 10.
         if (currentDurability <= 10) {

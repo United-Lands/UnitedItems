@@ -6,7 +6,7 @@
 
     <groupId>org.unitedlands</groupId>
     <artifactId>UnitedItems</artifactId>
-    <version>6.2.1</version>
+    <version>6.3.1</version>
     <packaging>jar</packaging>
 
     <name>UnitedItems</name>
@@ -89,20 +89,8 @@
     <dependencies>
         <dependency>
             <groupId>org.unitedlands</groupId>
-            <artifactId>UnitedSkills</artifactId>
-            <version>3.6.11</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.unitedlands</groupId>
             <artifactId>UnitedLib</artifactId>
             <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.LoneDev6</groupId>
-            <artifactId>api-itemsadder</artifactId>
-            <version>3.6.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -120,7 +108,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.5-R0.1-SNAPSHOT</version>
+            <version>1.21.10-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

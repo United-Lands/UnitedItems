@@ -4,7 +4,7 @@ main: org.unitedlands.items.UnitedItems
 api-version: 1.21
 authors: [ Litning11 ]
 contributors: [ Maroon28, Theriel_ ]
-depend: [NBTAPI, Towny, ItemsAdder]
+depend: [NBTAPI, Towny ]
 commands:
   uniteditems:
     description: General UnitedItems commands
