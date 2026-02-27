@@ -46,7 +46,7 @@ public class GamemasterTools extends CustomTool {
         int currentDurability = Integer.MAX_VALUE;
         if (meta instanceof Damageable damageable)
         {
-            currentDurability = damageable.getDamage();
+            currentDurability = damageable.getMaxDamage() - damageable.getDamage();
         }
 
         PersistentDataContainer container = meta.getPersistentDataContainer();

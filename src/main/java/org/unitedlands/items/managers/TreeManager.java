@@ -53,13 +53,21 @@ public class TreeManager implements Listener {
         dataManager.loadSaplings(saplingSets);
 
         Bukkit.getScheduler().runTaskLater(plugin,
-                () -> Logger.log("Saplings in memory after load: " + dataManager.getSaplingCount()), 100L);
+                () -> Logger.log("Saplings in memory after load: " + dataManager.getSaplingCount(), "UnitedItems"), 100L);
     }
 
     // Detect if a held item is a custom sapling.
     public CustomSapling detectSapling(ItemStack item) {
         if (item == null || item.getType() == Material.AIR)
             return null;
+
+        if (UnitedLib.getInstance().getItemFactory().isCustomItem(item)) {
+            for (CustomSapling sapling : saplingSets.values()) {
+                if (UnitedLib.getInstance().getItemFactory().getId(item).contains(sapling.getId())) {
+                    return sapling;
+                }
+            }
+        }
 
         return saplingSets.get(UnitedLib.getInstance().getItemFactory().getId(item).toLowerCase());
     }
@@ -145,10 +153,11 @@ public class TreeManager implements Listener {
         Location location = event.getLocation().toBlockLocation();
         CustomSapling sapling = dataManager.getSapling(location);
 
-        // Additional checks for jungle saplings, prevents mixed-sapling use to make big tree exploit.
+        // Additional checks for jungle saplings, prevents mixed-sapling use to make big
+        // tree exploit.
         if (location.getBlock().getType() == Material.JUNGLE_SAPLING) {
             // Look for any 2×2 square that includes this location.
-            int[] offs = {0, -1};
+            int[] offs = { 0, -1 };
             for (int dx : offs)
                 for (int dz : offs) {
                     Location base = location.clone().add(dx, 0, dz);
@@ -157,11 +166,10 @@ public class TreeManager implements Listener {
                     Block b01 = base.clone().add(0, 0, 1).getBlock();
                     Block b11 = base.clone().add(1, 0, 1).getBlock();
 
-                    boolean isBigJungle =
-                            b00.getType() == Material.JUNGLE_SAPLING &&
-                                    b10.getType() == Material.JUNGLE_SAPLING &&
-                                    b01.getType() == Material.JUNGLE_SAPLING &&
-                                    b11.getType() == Material.JUNGLE_SAPLING;
+                    boolean isBigJungle = b00.getType() == Material.JUNGLE_SAPLING &&
+                            b10.getType() == Material.JUNGLE_SAPLING &&
+                            b01.getType() == Material.JUNGLE_SAPLING &&
+                            b11.getType() == Material.JUNGLE_SAPLING;
 
                     if (isBigJungle) {
                         // Check what custom saplings were recorded at those positions.
@@ -215,7 +223,8 @@ public class TreeManager implements Listener {
                         if (sapling.isUsingVanillaStem()) {
                             blockLocation.getBlock().setType(sapling.getStemBlock());
                         } else if (sapling.getStemReplaceBlockName() != null) {
-                            UnitedLib.getInstance().getItemFactory().placeBlock(sapling.getStemReplaceBlockName(), location);
+                            UnitedLib.getInstance().getItemFactory().placeBlock(sapling.getStemReplaceBlockName(),
+                                    blockLocation);
                         }
                     }
 
@@ -225,7 +234,7 @@ public class TreeManager implements Listener {
                             blockLocation.getBlock().setType(Material.AIR);
                             String leafType = sapling.isSuccessful() ? sapling.getFruitedLeavesName()
                                     : sapling.getCustomLeavesName();
-                            UnitedLib.getInstance().getItemFactory().placeBlock(leafType, location);
+                            UnitedLib.getInstance().getItemFactory().placeBlock(leafType, blockLocation);
                         }
                     }
                 }
@@ -269,6 +278,5 @@ public class TreeManager implements Listener {
             dataManager.removeSapling(loc);
         }
     }
-
 
 }
