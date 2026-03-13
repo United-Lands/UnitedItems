@@ -33,6 +33,7 @@ public class UnitedItemsCommands implements CommandExecutor {
             plugin.reloadConfig();
             plugin.getCropsConfig().reload();
             plugin.getRecipeConfig().reload();
+            plugin.getBrewingConfig().reload();
             
             UnitedItems.getMessageProvider().reload(plugin.getConfig());
 

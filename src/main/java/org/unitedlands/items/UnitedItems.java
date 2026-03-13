@@ -17,6 +17,7 @@ public class UnitedItems extends JavaPlugin {
 
     private ConfigFile cropsConfig;
     private ConfigFile recipeConfig;
+    private ConfigFile brewingConfig;
 
     private PotionManager potionManager;
     private VoucherManager voucherManager;
@@ -58,6 +59,7 @@ public class UnitedItems extends JavaPlugin {
     public void loadConfigs() {
         cropsConfig = new ConfigFile(this, "crops.yml");
         recipeConfig = new ConfigFile(this, "recipes.yml");
+        brewingConfig = new ConfigFile(this, "brewing.yml");
     }
 
     public ConfigFile getCropsConfig() {
@@ -78,6 +80,10 @@ public class UnitedItems extends JavaPlugin {
 
     public CustomRecipeManager getCustomRecipeManager() {
         return customRecipeManager;
+    }
+
+    public ConfigFile getBrewingConfig() {
+        return brewingConfig;
     }
 
     public static MessageProvider getMessageProvider() {
