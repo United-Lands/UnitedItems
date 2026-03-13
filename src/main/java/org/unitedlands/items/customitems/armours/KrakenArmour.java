@@ -1,16 +1,16 @@
 package org.unitedlands.items.customitems.armours;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.Plugin;
-import org.unitedlands.utils.Logger;
+import org.unitedlands.UnitedLib;
 
 public class KrakenArmour extends CustomArmour {
 
@@ -39,16 +39,25 @@ public class KrakenArmour extends CustomArmour {
     }
 
     private void callAssistant(Player player) {
-        var commands = plugin.getConfig().getStringList("items.kraken-armour.assistant-commands");
-        if (commands == null)
+        var assistants = new ArrayList<>(plugin.getConfig().getConfigurationSection("items.kraken-armour.assistants").getKeys(false));
+        if (assistants == null || assistants.isEmpty())
             return;
 
-        Logger.log("Calling assistant...");
-
         var rnd = new Random();
-        var randomCommand = commands.get(rnd.nextInt(0, commands.size()));
 
-        Bukkit.dispatchCommand(player, randomCommand);
+        String randomAssistant = assistants.get(rnd.nextInt(0, assistants.size()));
+        var amount = plugin.getConfig().getInt("items.kraken-armour.assistants." + randomAssistant + ".amount", 1);
+        var radius = plugin.getConfig().getInt("items.kraken-armour.assistants." + randomAssistant + ".radius", 8);
+
+        for (int i = 0; i < amount; i++) {
+            var rndX = rnd.nextDouble(radius * -1, radius);
+            var rndZ = rnd.nextDouble(radius * -1, radius);
+            var rndLoc = player.getLocation().clone().add(rndX, 0, rndZ);
+            var y = rndLoc.getWorld().getHighestBlockYAt((int)rndLoc.getX(), (int)rndLoc.getZ());
+            rndLoc.setY(y);
+
+            UnitedLib.getInstance().getMobFactory().createMobAtLocation(randomAssistant, rndLoc, player, 1);
+        }
 
         int cooldown = plugin.getConfig().getInt("items.kraken-armour.cooldown", 60);
 
