@@ -40,6 +40,7 @@ public class UnitedItemsCommands implements CommandExecutor {
             plugin.getPotionManager().reloadPotions();
             plugin.getVoucherManager().reload();
             plugin.getCustomRecipeManager().loadRecipes();
+            plugin.getBrewingManager().loadRecipes();
             
             Messenger.sendMessage(sender, messageProvider.get("messages.reload"), null, messageProvider.get("messages.prefix"));
         }

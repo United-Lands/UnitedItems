@@ -22,24 +22,35 @@ public class VanillaPotion extends CustomPotion {
     private final int durationTicks;
 
 
+
     public VanillaPotionBuilder.PotionForm getForm() {
         return form;
     }
 
     public VanillaPotion(VanillaPotionBuilder.PotionForm form,
-                         PotionEffectType effect,
-                         int amplifier,
-                         int durationTicks)
-    {
+            PotionEffectType effect,
+            int amplifier,
+            int durationTicks) {
         this.form = form;
         this.effect = effect;
         this.amplifier = amplifier;
         this.durationTicks = durationTicks;
     }
 
+    public PotionEffectType getEffect() {
+        return effect;
+    }
+    public int getAmplifier() {
+        return amplifier;
+    }
+    public int getDurationTicks() {
+        return durationTicks;
+    }
+    
     @Override
     public void onDrink(Player player, ItemStack potionItem, PlayerItemConsumeEvent event) {
-        if (form != VanillaPotionBuilder.PotionForm.DRINK) return;
+        if (form != VanillaPotionBuilder.PotionForm.DRINK)
+            return;
 
         // Apply the effect
         player.addPotionEffect(buildEffect());
@@ -51,14 +62,17 @@ public class VanillaPotion extends CustomPotion {
 
     @Override
     public void onSplash(Player thrower, PotionSplashEvent event) {
-        if (form != VanillaPotionBuilder.PotionForm.SPLASH) return;
+        if (form != VanillaPotionBuilder.PotionForm.SPLASH)
+            return;
 
         var thrown = event.getPotion();
         var loc = thrown.getLocation();
         var world = loc.getWorld();
-        if (world == null) return;
+        if (world == null)
+            return;
 
-        // Detect if the thrown item has any effects, assume none then override if applicable.
+        // Detect if the thrown item has any effects, assume none then override if
+        // applicable.
         boolean noVanillaEffects = true;
         ItemStack stack = thrown.getItem();
         ItemMeta im = stack.getItemMeta();
@@ -74,10 +88,13 @@ public class VanillaPotion extends CustomPotion {
 
         for (LivingEntity target : event.getAffectedEntities()) {
             double intensity = event.getIntensity(target);
-            // If it's a water potion (ItemsAdder style) game might set intensity to 0 automatically, override.
-            if (noVanillaEffects) intensity = 1.0;
+            // If it's a water potion (ItemsAdder style) game might set intensity to 0
+            // automatically, override.
+            if (noVanillaEffects)
+                intensity = 1.0;
             totalIntensity += intensity;
-            if (intensity <= 0) continue;
+            if (intensity <= 0)
+                continue;
             int scaledDuration = (int) Math.max(1, durationTicks * intensity);
 
             target.addPotionEffect(new PotionEffect(effect, scaledDuration, amplifier, false, true, true));
@@ -90,17 +107,21 @@ public class VanillaPotion extends CustomPotion {
             double r2 = radius * radius;
 
             for (var entity : world.getNearbyEntities(loc, radius, radius, radius)) {
-                if (!(entity instanceof LivingEntity target)) continue;
-                if (target.isDead()) continue;
+                if (!(entity instanceof LivingEntity target))
+                    continue;
+                if (target.isDead())
+                    continue;
 
                 double d2 = target.getLocation().distanceSquared(loc);
-                if (d2 > r2) continue;
+                if (d2 > r2)
+                    continue;
 
                 double dist = Math.sqrt(d2);
                 double intensity = Math.max(0.0, 1.0 - (dist / radius));
 
                 int scaledDuration = (int) Math.max(1, durationTicks * intensity);
-                if (scaledDuration <= 0) continue;
+                if (scaledDuration <= 0)
+                    continue;
 
                 target.addPotionEffect(new PotionEffect(effect, scaledDuration, amplifier, false, true, true));
             }
@@ -109,7 +130,8 @@ public class VanillaPotion extends CustomPotion {
 
     @Override
     public void onLingeringCloud(Player thrower, AreaEffectCloud cloud, AreaEffectCloudApplyEvent event) {
-        if (form != VanillaPotionBuilder.PotionForm.LINGERING) return;
+        if (form != VanillaPotionBuilder.PotionForm.LINGERING)
+            return;
 
         for (LivingEntity target : event.getAffectedEntities()) {
             target.addPotionEffect(buildEffect());
