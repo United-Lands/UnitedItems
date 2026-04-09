@@ -33,12 +33,14 @@ public class UnitedItemsCommands implements CommandExecutor {
             plugin.reloadConfig();
             plugin.getCropsConfig().reload();
             plugin.getRecipeConfig().reload();
+            plugin.getBrewingConfig().reload();
             
             UnitedItems.getMessageProvider().reload(plugin.getConfig());
 
             plugin.getPotionManager().reloadPotions();
             plugin.getVoucherManager().reload();
             plugin.getCustomRecipeManager().loadRecipes();
+            plugin.getBrewingManager().loadRecipes();
             
             Messenger.sendMessage(sender, messageProvider.get("messages.reload"), null, messageProvider.get("messages.prefix"));
         }

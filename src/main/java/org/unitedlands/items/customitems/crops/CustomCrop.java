@@ -202,12 +202,8 @@ public class CustomCrop {
     }
 
     public void onHarvest(Location location) {
-        var seed = UnitedLib.getInstance().getItemFactory().getItemStack(seedItemId, 1, getMaxGrowthStage() + 1);
-        if (seed != null) {
-            location.getWorld().dropItemNaturally(location, seed);
-        }
         var drop = UnitedLib.getInstance().getItemFactory().getItemStack(dropItem, dropAmount);
-        if (seed != null) {
+        if (drop != null) {
             location.getWorld().dropItemNaturally(location, drop);
         }
     }

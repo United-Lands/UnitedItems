@@ -85,6 +85,13 @@ items:
     assistant-commands:
     - "mm test cast Kraken_Summon_Dead_Adventurer_Assistant"
     - "mm test cast Kraken_Summon_Tentacle_Assistant"
+    assistants:
+      Kraken_Dead_Adventurer_Assistant:
+        amount: 3
+        radius: 8
+      Kraken_Tentacle_Assistant:
+        amount: 1
+        radius: 8
   kraken-sabre:
     lightning-chance: 1.0
     lightning-damage: 5

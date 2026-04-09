@@ -98,7 +98,7 @@ public class VanillaPotionBuilder {
             return result;
     }
 
-    private static NamespacedKey toEffectKey(String raw) {
+    public static NamespacedKey toEffectKey(String raw) {
         String s = raw.trim().toLowerCase(Locale.ROOT);
         if (!s.contains(":")) s = "minecraft:" + s;
         return NamespacedKey.fromString(s);

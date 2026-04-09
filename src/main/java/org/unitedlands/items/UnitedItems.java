@@ -17,11 +17,13 @@ public class UnitedItems extends JavaPlugin {
 
     private ConfigFile cropsConfig;
     private ConfigFile recipeConfig;
+    private ConfigFile brewingConfig;
 
     private PotionManager potionManager;
     private VoucherManager voucherManager;
     private DataManager dataManager;
     private CustomRecipeManager customRecipeManager;
+    private BrewingManager brewingManager;
 
     @Override
     public void onEnable() {
@@ -41,6 +43,7 @@ public class UnitedItems extends JavaPlugin {
         voucherManager = new VoucherManager(this);
 
         customRecipeManager = new CustomRecipeManager(this);
+        brewingManager = new BrewingManager(this);
 
         var pm = getServer().getPluginManager();
         pm.registerEvents(armourManager, this);
@@ -50,6 +53,9 @@ public class UnitedItems extends JavaPlugin {
         pm.registerEvents(treeManager, this);
         pm.registerEvents(voucherManager, this);
         pm.registerEvents(customRecipeManager, this);
+        
+        //Disabled for the time being until Nexo potion issue is solved
+        pm.registerEvents(brewingManager, this);
 
         Objects.requireNonNull(getCommand("uniteditems")).setExecutor(new UnitedItemsCommands(this, messageProvider));
         Objects.requireNonNull(getCommand("updateitem")).setExecutor(new UpdateItemCommand(this, messageProvider));
@@ -58,6 +64,7 @@ public class UnitedItems extends JavaPlugin {
     public void loadConfigs() {
         cropsConfig = new ConfigFile(this, "crops.yml");
         recipeConfig = new ConfigFile(this, "recipes.yml");
+        brewingConfig = new ConfigFile(this, "brewing.yml");
     }
 
     public ConfigFile getCropsConfig() {
@@ -80,8 +87,16 @@ public class UnitedItems extends JavaPlugin {
         return customRecipeManager;
     }
 
+    public ConfigFile getBrewingConfig() {
+        return brewingConfig;
+    }
+
     public static MessageProvider getMessageProvider() {
         return messageProvider;
+    }
+
+    public BrewingManager getBrewingManager() {
+        return brewingManager;
     }
 
     @Override

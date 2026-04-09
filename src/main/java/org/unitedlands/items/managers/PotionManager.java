@@ -42,8 +42,19 @@ public class PotionManager implements Listener {
         potionSets.put("blasting1", new BlastingRegular());
         potionSets.put("blasting2", new BlastingSplash());
         potionSets.put("blasting3", new BlastingLingering(plugin));
+        potionSets.put("milk1", new MilkRegular());
+        potionSets.put("milk2", new MilkSplash());
+        potionSets.put("milk3", new MilkLingering());
+
         var potionBuilder = new VanillaPotionBuilder(plugin);
         potionSets.putAll(potionBuilder.loadFrom(config));
+    }
+
+    public CustomPotion getPotion(String key) {
+        var match = potionSets.keySet().stream().filter(k -> k.contains(key)).findFirst().orElse(null);
+        if (match != null)
+            return potionSets.get(match);
+        return null;
     }
 
     @Nullable
@@ -102,7 +113,8 @@ public class PotionManager implements Listener {
             thrower = p;
         }
 
-        // I think ItemsAdder doesn't actually make lingering potions, so we artificially create a cloud.
+        // I think ItemsAdder doesn't actually make lingering potions, so we
+        // artificially create a cloud.
         if (potion instanceof VanillaPotion vp
                 && vp.getForm() == VanillaPotionBuilder.PotionForm.LINGERING) {
 
@@ -110,12 +122,12 @@ public class PotionManager implements Listener {
             var loc = event.getPotion().getLocation();
             var world = loc.getWorld();
             if (world != null) {
-                AreaEffectCloud cloud = (AreaEffectCloud)
-                        world.spawnEntity(loc, EntityType.AREA_EFFECT_CLOUD);
+                AreaEffectCloud cloud = (AreaEffectCloud) world.spawnEntity(loc, EntityType.AREA_EFFECT_CLOUD);
 
                 // Tag cloud so onCloudApply can resolve it.
                 String resolvedKey = (potionKey != null)
-                        ? potionKey : findPotionKey(event.getPotion().getItem());
+                        ? potionKey
+                        : findPotionKey(event.getPotion().getItem());
 
                 if (resolvedKey == null) {
                     // Can't associate this cloud with any custom potion, skip.
@@ -170,18 +182,25 @@ public class PotionManager implements Listener {
         }
 
         // Tag the cloud with the same key
+
+        CustomPotion potion = potionSets.get(key);
+        if (potion == null) {
+            return;
+        }
+
         var cloud = event.getAreaEffectCloud();
+        // Dummy effect to force plugin to fire real behaviours.
+        cloud.addCustomEffect(new PotionEffect(PotionEffectType.LUCK, 1, 0, true, true, true), true);
         cloud.getPersistentDataContainer().set(
                 POTION_KEY,
                 PersistentDataType.STRING,
-                key
-        );
+                key);
     }
-
 
     // Player effected by lingering cloud.
     @EventHandler
     public void onCloudApply(AreaEffectCloudApplyEvent event) {
+
         var pdc = event.getEntity().getPersistentDataContainer();
         String key = pdc.get(POTION_KEY, PersistentDataType.STRING);
         if (key == null) {
@@ -196,8 +215,7 @@ public class PotionManager implements Listener {
         potion.onLingeringCloud(
                 event.getEntity().getSource() instanceof Player p ? p : null,
                 event.getEntity(),
-                event
-        );
+                event);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -221,17 +239,16 @@ public class PotionManager implements Listener {
                 thrown.getPersistentDataContainer().set(
                         POTION_KEY,
                         PersistentDataType.STRING,
-                        key
-                );
+                        key);
             }
         }
     }
 
-
     // Helper to find registry key that matches an ItemStack
     @Nullable
     private String findPotionKey(ItemStack item) {
-        if (item == null || item.getType().isAir()) return null;
+        if (item == null || item.getType().isAir())
+            return null;
 
         String id = UnitedLib.getInstance().getItemFactory().getId(item);
 
