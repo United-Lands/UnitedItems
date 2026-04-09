@@ -1,12 +1,14 @@
 package org.unitedlands.items.util;
 
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.unitedlands.UnitedLib;
 import org.unitedlands.items.UnitedItems;
 import org.unitedlands.utils.Logger;
@@ -16,15 +18,15 @@ import java.util.Set;
 
 public final class ItemUpdater {
 
-    private ItemUpdater() { }
+    private ItemUpdater() {
+    }
 
     public static ItemStack updateItem(
             UnitedItems plugin,
             MessageProvider messageProvider,
             Player player,
             ItemStack original,
-            boolean sendMessages
-    ) {
+            boolean sendMessages) {
         if (original == null || original.getType() == Material.AIR) {
             if (sendMessages && messageProvider != null) {
                 Messenger.sendMessage(player, messageProvider.get("messages.update-no-item"), null,
@@ -41,16 +43,28 @@ public final class ItemUpdater {
         }
         Set<String> keys = updateSection.getKeys(false);
 
-        
+        String fromId = "";
+
         if (!itemFactory.isCustomItem(original)) {
-            if (sendMessages && messageProvider != null) {
-                Messenger.sendMessage(player, messageProvider.get("messages.update-no-custom-item"), null,
-                        messageProvider.get("messages.prefix"));
+            // It might be an item that has changed ids during conversion and isn't properly
+            // registered, so let's see if it contains a custom id
+            var nameSpacedKey = new NamespacedKey("nexo", "id");
+            var pdc = original.getItemMeta().getPersistentDataContainer();
+            var legacyId = pdc.get(nameSpacedKey, PersistentDataType.STRING);
+            if (legacyId == null || legacyId.isBlank()) {
+                // Definitely not a custom item.
+                if (sendMessages && messageProvider != null) {
+                    Messenger.sendMessage(player, messageProvider.get("messages.update-no-custom-item"), null,
+                            messageProvider.get("messages.prefix"));
+                }
+                return original;
+            } else {
+                fromId = legacyId;
             }
-            return original;
+        } else {
+            fromId = itemFactory.getId(original);
         }
 
-        String fromId = itemFactory.getId(original);
         if (!keys.contains(fromId)) {
             if (sendMessages && messageProvider != null) {
                 Messenger.sendMessage(player, messageProvider.get("messages.update-error"), null,
