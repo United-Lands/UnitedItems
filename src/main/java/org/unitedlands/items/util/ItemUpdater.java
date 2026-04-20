@@ -143,4 +143,76 @@ public final class ItemUpdater {
 
         return newItem;
     }
+
+     public static ItemStack refreshitem(
+            UnitedItems plugin,
+            MessageProvider messageProvider,
+            Player player,
+            ItemStack original,
+            boolean sendMessages) {
+        if (original == null || original.getType() == Material.AIR) {
+            if (sendMessages && messageProvider != null) {
+                Messenger.sendMessage(player, messageProvider.get("messages.update-no-item"), null,
+                        messageProvider.get("messages.prefix"));
+            }
+            return original;
+        }
+
+        var itemFactory = UnitedLib.getInstance().getItemFactory();
+
+        ConfigurationSection updateSection = plugin.getConfig().getConfigurationSection("update");
+        if (updateSection == null) {
+            return original;
+        }
+        Set<String> keys = updateSection.getKeys(false);
+
+        String fromId = "";
+
+        if (!itemFactory.isCustomItem(original)) {
+            // It might be an item that has changed ids during conversion and isn't properly
+            // registered, so let's see if it contains a custom id
+            var nameSpacedKey = new NamespacedKey("nexo", "id");
+            var pdc = original.getItemMeta().getPersistentDataContainer();
+            var legacyId = pdc.get(nameSpacedKey, PersistentDataType.STRING);
+            if (legacyId == null || legacyId.isBlank()) {
+                // Definitely not a custom item.
+                if (sendMessages && messageProvider != null) {
+                    Messenger.sendMessage(player, messageProvider.get("messages.update-no-custom-item"), null,
+                            messageProvider.get("messages.prefix"));
+                }
+                return original;
+            } else {
+                fromId = legacyId;
+            }
+        } else {
+            fromId = itemFactory.getId(original);
+        }
+
+        if (!keys.contains(fromId)) {
+            if (sendMessages && messageProvider != null) {
+                Messenger.sendMessage(player, messageProvider.get("messages.update-error"), null,
+                        messageProvider.get("messages.prefix"));
+            }
+            return original;
+        }
+
+        String targetId = updateSection.getString(fromId);
+        if (targetId == null) {
+            if (sendMessages && messageProvider != null) {
+                Messenger.sendMessage(player, messageProvider.get("messages.update-error"), null,
+                        messageProvider.get("messages.prefix"));
+            }
+            return original;
+        }
+
+        if (sendMessages && messageProvider != null) {
+            Logger.log("Updating " + fromId + " to " + targetId + "...");
+            Messenger.sendMessage(player, messageProvider.get("messages.update-updating"), null,
+                    messageProvider.get("messages.prefix"));
+        }
+
+        ItemStack newItem = itemFactory.getItemStack(targetId, original.getAmount());
+
+        return newItem;
+    }
 }

@@ -2,10 +2,13 @@ package org.unitedlands.items;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.unitedlands.classes.ConfigFile;
+import org.unitedlands.items.commands.RefreshItemCommand;
 import org.unitedlands.items.commands.UnitedItemsCommands;
 import org.unitedlands.items.commands.UpdateItemCommand;
+import org.unitedlands.items.listeners.FishingListener;
 import org.unitedlands.items.managers.*;
 import org.unitedlands.items.util.DataManager;
+import org.unitedlands.items.util.LootConfig;
 import org.unitedlands.items.util.MessageProvider;
 import org.unitedlands.items.util.PermissionsManager;
 
@@ -18,12 +21,15 @@ public class UnitedItems extends JavaPlugin {
     private ConfigFile cropsConfig;
     private ConfigFile recipeConfig;
     private ConfigFile brewingConfig;
+    private ConfigFile lootConfig;
 
     private PotionManager potionManager;
     private VoucherManager voucherManager;
     private DataManager dataManager;
     private CustomRecipeManager customRecipeManager;
     private BrewingManager brewingManager;
+
+    private LootConfig fishingLoot;
 
     @Override
     public void onEnable() {
@@ -45,6 +51,8 @@ public class UnitedItems extends JavaPlugin {
         customRecipeManager = new CustomRecipeManager(this);
         brewingManager = new BrewingManager(this);
 
+        fishingLoot = new LootConfig(this, "fishing");
+
         var pm = getServer().getPluginManager();
         pm.registerEvents(armourManager, this);
         pm.registerEvents(cropManager, this);
@@ -53,18 +61,21 @@ public class UnitedItems extends JavaPlugin {
         pm.registerEvents(treeManager, this);
         pm.registerEvents(voucherManager, this);
         pm.registerEvents(customRecipeManager, this);
-        
-        //Disabled for the time being until Nexo potion issue is solved
+        pm.registerEvents(new FishingListener(this), this);
+
+        // Disabled for the time being until Nexo potion issue is solved
         pm.registerEvents(brewingManager, this);
 
         Objects.requireNonNull(getCommand("uniteditems")).setExecutor(new UnitedItemsCommands(this, messageProvider));
         Objects.requireNonNull(getCommand("updateitem")).setExecutor(new UpdateItemCommand(this, messageProvider));
+        Objects.requireNonNull(getCommand("itemrefresh")).setExecutor(new RefreshItemCommand(this, messageProvider));
     }
 
     public void loadConfigs() {
         cropsConfig = new ConfigFile(this, "crops.yml");
         recipeConfig = new ConfigFile(this, "recipes.yml");
         brewingConfig = new ConfigFile(this, "brewing.yml");
+        lootConfig = new ConfigFile(this, "loottables.yml");
     }
 
     public ConfigFile getCropsConfig() {
@@ -89,6 +100,14 @@ public class UnitedItems extends JavaPlugin {
 
     public ConfigFile getBrewingConfig() {
         return brewingConfig;
+    }
+
+    public ConfigFile getLootConfig() {
+        return lootConfig;
+    }
+
+    public LootConfig getFishingLoot() {
+        return fishingLoot;
     }
 
     public static MessageProvider getMessageProvider() {

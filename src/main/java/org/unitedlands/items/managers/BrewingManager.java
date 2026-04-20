@@ -187,7 +187,6 @@ public class BrewingManager implements Listener {
         stand.setFuelLevel(stand.getFuelLevel() - 1); // spend 1 fuel
         stand.update(true, false);
 
-        plugin.getLogger().info("Brewing start...");
         BukkitRunnable task = new BukkitRunnable() {
             int ticks = 0;
 
@@ -269,7 +268,6 @@ public class BrewingManager implements Listener {
                                 }
                             } else {
                                 var baseItemId = itemFactory.getId(baseItem);
-                                Logger.log("Trying to get potion " + baseItemId);
                                 var customPotion = plugin.getPotionManager().getPotion(baseItemId);
                                 // Only vanilla type potions have effects
                                 if (customPotion != null
@@ -300,13 +298,10 @@ public class BrewingManager implements Listener {
                                 }
                             } else {
                                 var ingredientItemId = itemFactory.getId(ingredient);
-                                Logger.log("Trying to get potion " + ingredientItemId);
                                 var customPotion = plugin.getPotionManager().getPotion(ingredientItemId);
                                 if (customPotion != null
                                         && customPotion instanceof VanillaPotion vanillaCustomPostion) {
-                                    Logger.log("customPotion " + ingredientItemId);
                                     var effect = vanillaCustomPostion.getEffect();
-                                    Logger.log("effect " + effect.toString());
                                     if (effect != null) {
                                         resultMeta.addCustomEffect(
                                                 new PotionEffect(effect, vanillaCustomPostion.getDurationTicks(),
