@@ -11,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import org.unitedlands.UnitedLib;
 import org.unitedlands.items.UnitedItems;
 import org.unitedlands.items.util.LootConfig;
-import org.unitedlands.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,14 +28,10 @@ public class FishingListener implements Listener {
     @EventHandler
     public void onFish(PlayerFishEvent event) {
 
-        Logger.log("PlayerFishEvent", "UnitedItems");
-
         if (event.getState() != State.CAUGHT_FISH)
             return;
         if (!(event.getCaught() instanceof Item caughtItem))
             return;
-
-        Logger.log("PlayerFishEvent process...", "UnitedItems");
 
         Player player = event.getPlayer();
         Biome biome = player.getLocation().getBlock().getBiome();
@@ -46,25 +41,17 @@ public class FishingListener implements Listener {
 
         for (LootConfig.LootEntry entry : lootConfig.getEntries()) {
 
-            Logger.log("Entry check", "UnitedItems");
-
             if (!entry.enabled())
                 continue;
             if (!entry.biomes().contains(biome))
                 continue;
 
-            Logger.log("Entry check 2", "UnitedItems");
-
-
             for (LootConfig.LootItem lootItem : entry.items()) {
                 if (random.nextDouble() * 100 <= lootItem.chance()) {
-                    Logger.log("Adding winner", "UnitedItems");
                     winners.add(lootItem);
                 }
             }
         }
-
-        Logger.log("winners " + winners.size(), "UnitedItems");
 
         if (winners.isEmpty())
             return;
@@ -76,8 +63,6 @@ public class FishingListener implements Listener {
 
         if (replacement == null)
             return;
-
-        Logger.log("winners " + winners.size(), "UnitedItems");
 
         caughtItem.setItemStack(replacement);
     }
