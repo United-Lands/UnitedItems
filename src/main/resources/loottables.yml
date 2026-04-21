@@ -1,0 +1,88 @@
+fishing:
+  shark:
+    enabled: true
+    biomes:
+    - DEEP_OCEAN
+    - DEEP_LUKEWARM_OCEAN
+    items:
+      item_1:
+        item: shark
+        min_amount: 1
+        max_amount: 1
+        chance: 15
+
+  crab:
+    enabled: true
+    biomes:
+    - RIVER
+    - WARM_OCEAN
+    - OCEAN
+    items:
+      item_1:
+        item: crab
+        min_amount: 1
+        max_amount: 1
+        chance: 15
+
+  lobster:
+    enabled: true
+    biomes:
+    - RIVER
+    - WARM_OCEAN
+    - OCEAN
+    items:
+      item_1:
+        item: lobster
+        min_amount: 1
+        max_amount: 1
+        chance: 15
+
+  shrimp:
+    enabled: true
+    biomes:
+    - DEEP_OCEAN
+    - DEEP_COLD_OCEAN
+    - COLD_OCEAN
+    items:
+      item_1:
+        item: shrimp
+        min_amount: 1
+        max_amount: 1
+        chance: 15
+
+  tuna:
+    enabled: true
+    biomes:
+    - DEEP_OCEAN
+    - DEEP_LUKEWARM_OCEAN
+    items:
+      item_1:
+        item: tuna
+        min_amount: 1
+        max_amount: 1
+        chance: 15
+
+  swordfish:
+    enabled: true
+    biomes:
+    - DEEP_OCEAN
+    - DEEP_LUKEWARM_OCEAN
+    items:
+      item_1:
+        item: swordfish
+        min_amount: 1
+        max_amount: 1
+        chance: 15
+
+  clam:
+    enabled: true
+    biomes:
+    - RIVER
+    - WARM_OCEAN
+    - OCEAN
+    items:
+      item_1:
+        item: clam
+        min_amount: 1
+        max_amount: 1
+        chance: 15

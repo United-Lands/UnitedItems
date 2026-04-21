@@ -93,6 +93,7 @@ public class CustomCrop {
         new BukkitRunnable() {
             @Override
             public void run() {
+
                 // Cancel the task if the crop has been removed.
                 if (!dataManager.hasCrop(location)) {
                     cancel();

@@ -18,6 +18,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.unitedlands.UnitedLib;
+import org.unitedlands.classes.events.UnitedLandsValueChangeEvent;
 import org.unitedlands.items.UnitedItems;
 import org.unitedlands.items.customitems.crops.*;
 import org.unitedlands.items.util.DataManager;
@@ -174,8 +175,18 @@ public class CropManager implements Listener {
             return;
         }
 
-        crop.placeCrop(above.getLocation(), 1);
-        dataManager.addCrop(above.getLocation(), crop, 1);
+        var cropPlantEvent = new UnitedLandsValueChangeEvent("CROP_PLANT", 1);
+        cropPlantEvent.setPlayer(event.getPlayer());
+        cropPlantEvent.setEventLocation(above.getLocation());
+        cropPlantEvent.callEvent();
+
+        if (cropPlantEvent.isCancelled())
+            return;
+
+        var cropStage = (int)cropPlantEvent.getNewValue();
+
+        crop.placeCrop(above.getLocation(), cropStage);
+        dataManager.addCrop(above.getLocation(), crop, cropStage);
         above.getWorld().playSound(above.getLocation(), org.bukkit.Sound.ITEM_CROP_PLANT, 1.0f, 1.0f);
         crop.startRandomGrowthTask(above.getLocation(), dataManager);
 
