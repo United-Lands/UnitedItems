@@ -13,7 +13,7 @@ public class Olive extends CustomSapling {
         super("olive_sapling",
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, null, true,
-                Material.PAPER, "trees:oak_leaves", "trees:olive_leaves_fruited", false,
+                Material.PAPER, "oak_leaves", "olive_leaves_fruited", false,
                 0.25, Set.of(Biome.SAVANNA, Biome.WINDSWEPT_SAVANNA, Biome.SAVANNA_PLATEAU, Biome.PLAINS, Biome.FOREST));
     }
 

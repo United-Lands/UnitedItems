@@ -13,7 +13,7 @@ public class Avocado extends CustomSapling {
         super("avocado_sapling",
                 Material.JUNGLE_SAPLING,
                 Material.JUNGLE_LOG, null, true,
-                Material.PAPER, "trees:jungle_leaves", "trees:avocado_leaves_fruited", false,
+                Material.PAPER, "jungle_leaves", "avocado_leaves_fruited", false,
                 0.25, Set.of(Biome.JUNGLE, Biome.SPARSE_JUNGLE, Biome.SWAMP, Biome.SAVANNA));
     }
 

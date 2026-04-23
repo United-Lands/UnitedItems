@@ -11,8 +11,8 @@ public class MidasOak extends CustomSapling {
     public MidasOak() {
         super("midas_oak_sapling",
                 Material.OAK_SAPLING,
-                Material.OAK_LOG, "trees:midas_oak_log", false,
-                Material.PAPER, "trees:midas_oak_leaves", "trees:midas_oak_leaves_fruited", false,
+                Material.OAK_LOG, "midas_oak_log", false,
+                Material.PAPER, "midas_oak_leaves", "midas_oak_leaves_fruited", false,
                 0.25, Set.of());
     }
 
