@@ -6,9 +6,9 @@ import org.unitedlands.items.commands.RefreshItemCommand;
 import org.unitedlands.items.commands.UnitedItemsCommands;
 import org.unitedlands.items.commands.UpdateItemCommand;
 import org.unitedlands.items.listeners.FishingListener;
+import org.unitedlands.items.listeners.MobKillListener;
 import org.unitedlands.items.managers.*;
 import org.unitedlands.items.util.DataManager;
-import org.unitedlands.items.util.LootConfig;
 import org.unitedlands.items.util.MessageProvider;
 import org.unitedlands.items.util.PermissionsManager;
 
@@ -29,7 +29,8 @@ public class UnitedItems extends JavaPlugin {
     private CustomRecipeManager customRecipeManager;
     private BrewingManager brewingManager;
 
-    private LootConfig fishingLoot;
+    private FishingListener fishingListener;
+    private MobKillListener mobKillListener;
 
     @Override
     public void onEnable() {
@@ -51,8 +52,6 @@ public class UnitedItems extends JavaPlugin {
         customRecipeManager = new CustomRecipeManager(this);
         brewingManager = new BrewingManager(this);
 
-        fishingLoot = new LootConfig(this, "fishing");
-
         var pm = getServer().getPluginManager();
         pm.registerEvents(armourManager, this);
         pm.registerEvents(cropManager, this);
@@ -61,7 +60,11 @@ public class UnitedItems extends JavaPlugin {
         pm.registerEvents(treeManager, this);
         pm.registerEvents(voucherManager, this);
         pm.registerEvents(customRecipeManager, this);
-        pm.registerEvents(new FishingListener(this), this);
+
+        fishingListener = new FishingListener(this);
+        pm.registerEvents(fishingListener, this);
+        mobKillListener = new MobKillListener(this);
+        pm.registerEvents(mobKillListener, this);
 
         // Disabled for the time being until Nexo potion issue is solved
         pm.registerEvents(brewingManager, this);
@@ -106,16 +109,20 @@ public class UnitedItems extends JavaPlugin {
         return lootConfig;
     }
 
-    public LootConfig getFishingLoot() {
-        return fishingLoot;
-    }
-
     public static MessageProvider getMessageProvider() {
         return messageProvider;
     }
 
     public BrewingManager getBrewingManager() {
         return brewingManager;
+    }
+
+    public FishingListener getFishingListener() {
+        return fishingListener;
+    }
+
+    public MobKillListener getMobKillListener() {
+        return mobKillListener;
     }
 
     @Override

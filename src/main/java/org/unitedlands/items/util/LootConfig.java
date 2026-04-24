@@ -17,7 +17,7 @@ public class LootConfig {
     public record LootItem(String itemId, int minAmount, int maxAmount, double chance) {
     }
 
-    public record LootEntry(boolean enabled, Set<Biome> biomes, List<LootItem> items) {
+    public record LootEntry(String key, boolean enabled, Set<Biome> biomes, List<LootItem> items) {
     }
 
     private final Map<String, LootEntry> entries = new LinkedHashMap<>();
@@ -70,7 +70,7 @@ public class LootConfig {
                 }
             }
 
-            entries.put(key, new LootEntry(enabled, biomes, items));
+            entries.put(key, new LootEntry(key, enabled, biomes, items));
         }
     }
 

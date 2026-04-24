@@ -13,7 +13,7 @@ public class Lemon extends CustomSapling {
         super("lemon_sapling",
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, null, true,
-                Material.PAPER, "oak_leaves", "lemon_leaves_fruited", false,
+                Material.PAPER, "OAK_LEAVES", "lemon_leaves_fruited", false,
                 0.25, Set.of(Biome.SAVANNA, Biome.FOREST, Biome.PLAINS, Biome.FLOWER_FOREST, Biome.JUNGLE, Biome.SPARSE_JUNGLE));
     }
 

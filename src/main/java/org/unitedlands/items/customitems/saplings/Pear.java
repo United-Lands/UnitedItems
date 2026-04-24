@@ -13,7 +13,7 @@ public class Pear extends CustomSapling {
         super("pear_sapling",
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, null, true,
-                Material.PAPER, "oak_leaves", "pear_leaves_fruited", false,
+                Material.PAPER, "OAK_LEAVES", "pear_leaves_fruited", false,
                 0.25, Set.of(Biome.FOREST, Biome.PLAINS, Biome.FLOWER_FOREST, Biome.BIRCH_FOREST));
     }
 

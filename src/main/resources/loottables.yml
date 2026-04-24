@@ -86,3 +86,64 @@ fishing:
         min_amount: 1
         max_amount: 1
         chance: 15
+
+
+mobs:
+  COW:
+    enabled: true
+    items:
+      item_1:
+        item: ribs
+        min_amount: 1
+        max_amount: 3
+        chance: 30
+  PIG:
+    enabled: true
+    items:
+      item_1:
+        item: bacon
+        min_amount: 1
+        max_amount: 3
+        chance: 25
+      item_2:
+        item: sausage
+        min_amount: 1
+        max_amount: 1
+        chance: 25
+  CHICKEN:
+    enabled: true
+    items:
+      item_1:
+        item: drumstick
+        min_amount: 1
+        max_amount: 2
+        chance: 20
+      item_2:
+        item: chicken_wings
+        min_amount: 1
+        max_amount: 2
+        chance: 15
+  FROG:
+    enabled: true
+    items:
+      item_1:
+        item: frog_legs
+        min_amount: 1
+        max_amount: 2
+        chance: 30
+  SHEEP:
+    enabled: true
+    items:
+      item_1:
+        item: lambchops
+        min_amount: 2
+        max_amount: 4
+        chance: 50
+  SQUID:
+    enabled: true
+    items:
+      item_1:
+        item: squid
+        min_amount: 1
+        max_amount: 1
+        chance: 50

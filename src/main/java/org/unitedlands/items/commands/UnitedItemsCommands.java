@@ -43,7 +43,8 @@ public class UnitedItemsCommands implements CommandExecutor {
             plugin.getCustomRecipeManager().loadRecipes();
             plugin.getBrewingManager().loadRecipes();
 
-            plugin.getFishingLoot().reload("fishing");
+            plugin.getFishingListener().reloadLootConfig();
+            plugin.getMobKillListener().reloadLootConfig();
             
             Messenger.sendMessage(sender, messageProvider.get("messages.reload"), null, messageProvider.get("messages.prefix"));
         }

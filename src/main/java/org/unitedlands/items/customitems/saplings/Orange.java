@@ -13,7 +13,7 @@ public class Orange extends CustomSapling {
         super("orange_sapling",
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, null, true,
-                Material.PAPER, "oak_leaves", "orange_leaves_fruited", false,
+                Material.PAPER, "OAK_LEAVES", "orange_leaves_fruited", false,
                 0.25, Set.of(Biome.SAVANNA, Biome.FOREST, Biome.PLAINS, Biome.FLOWER_FOREST, Biome.JUNGLE, Biome.SPARSE_JUNGLE));
     }
 
