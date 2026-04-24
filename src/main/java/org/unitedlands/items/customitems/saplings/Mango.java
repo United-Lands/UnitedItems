@@ -13,7 +13,7 @@ public class Mango extends CustomSapling {
         super("mango_sapling",
                 Material.JUNGLE_SAPLING,
                 Material.JUNGLE_LOG, null, true,
-                Material.PAPER, "trees:jungle_leaves", "trees:mango_leaves_fruited", false,
+                Material.PAPER, "JUNGLE_LEAVES", "mango_leaves_fruited", false,
                 0.25, Set.of(Biome.JUNGLE, Biome.SPARSE_JUNGLE, Biome.SWAMP, Biome.SAVANNA));
     }
 

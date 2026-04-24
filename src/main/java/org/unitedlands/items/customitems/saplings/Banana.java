@@ -13,7 +13,7 @@ public class Banana extends CustomSapling {
         super("banana_sapling",
                 Material.JUNGLE_SAPLING,
                 Material.JUNGLE_LOG, null, true,
-                Material.PAPER, "trees:jungle_leaves", "trees:banana_leaves_fruited", false,
+                Material.PAPER, "JUNGLE_LEAVES", "banana_leaves_fruited", false,
                 0.25, Set.of(Biome.JUNGLE, Biome.SPARSE_JUNGLE, Biome.SWAMP));
     }
 

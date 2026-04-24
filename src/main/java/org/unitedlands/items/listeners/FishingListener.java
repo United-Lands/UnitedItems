@@ -21,8 +21,15 @@ public class FishingListener implements Listener {
     private final UnitedItems plugin;
     private final Random random = new Random();
 
+    private LootConfig fishingLoot;
+
     public FishingListener(UnitedItems plugin) {
         this.plugin = plugin;
+        reloadLootConfig();
+    }
+
+    public void reloadLootConfig() {
+        fishingLoot = new LootConfig(plugin, "fishing");
     }
 
     @EventHandler
@@ -36,15 +43,16 @@ public class FishingListener implements Listener {
         Player player = event.getPlayer();
         Biome biome = player.getLocation().getBlock().getBiome();
 
-        LootConfig lootConfig = plugin.getFishingLoot();
         List<LootConfig.LootItem> winners = new ArrayList<>();
 
-        for (LootConfig.LootEntry entry : lootConfig.getEntries()) {
+        for (LootConfig.LootEntry entry : fishingLoot.getEntries()) {
 
             if (!entry.enabled())
                 continue;
-            if (!entry.biomes().contains(biome))
-                continue;
+            if (entry.biomes() != null && !entry.biomes().isEmpty()) {
+                if (!entry.biomes().contains(biome))
+                    continue;
+            }
 
             for (LootConfig.LootItem lootItem : entry.items()) {
                 if (random.nextDouble() * 100 <= lootItem.chance()) {
