@@ -42,7 +42,7 @@ public class ToolManager implements Listener {
 
         toolSets.put("gamemaster", new GamemasterTools(plugin, config));
         toolSets.put("amethyst", new AmethystPickaxe());
-        toolSets.put("barkbinder", new BarkbinderAxe(plugin));
+        toolSets.put("barkbinder", new BarkbinderAxe());
         toolSets.put("gingerbread", new GingerbreadTools());
         toolSets.put("architects_wand", new ArchitectsWand(plugin));
         toolSets.put("telekinetic_wand", new TelekineticWand(plugin));

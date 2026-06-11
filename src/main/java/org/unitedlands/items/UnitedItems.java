@@ -5,6 +5,7 @@ import org.unitedlands.classes.ConfigFile;
 import org.unitedlands.items.commands.RefreshItemCommand;
 import org.unitedlands.items.commands.UnitedItemsCommands;
 import org.unitedlands.items.commands.UpdateItemCommand;
+import org.unitedlands.items.listeners.BlockBreakListener;
 import org.unitedlands.items.listeners.FishingListener;
 import org.unitedlands.items.listeners.MobKillListener;
 import org.unitedlands.items.managers.*;
@@ -31,6 +32,7 @@ public class UnitedItems extends JavaPlugin {
 
     private FishingListener fishingListener;
     private MobKillListener mobKillListener;
+    private BlockBreakListener blockBreakListener;
 
     @Override
     public void onEnable() {
@@ -65,6 +67,8 @@ public class UnitedItems extends JavaPlugin {
         pm.registerEvents(fishingListener, this);
         mobKillListener = new MobKillListener(this);
         pm.registerEvents(mobKillListener, this);
+        blockBreakListener = new BlockBreakListener(this);
+        pm.registerEvents(blockBreakListener, this);
 
         // Disabled for the time being until Nexo potion issue is solved
         pm.registerEvents(brewingManager, this);
@@ -124,6 +128,8 @@ public class UnitedItems extends JavaPlugin {
     public MobKillListener getMobKillListener() {
         return mobKillListener;
     }
+
+    public BlockBreakListener getBlockBreakListener() { return blockBreakListener; }
 
     @Override
     public void onDisable() {

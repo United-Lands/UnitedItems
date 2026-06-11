@@ -1,4 +1,16 @@
+blocks:
+
+  CHERRY_LEAVES:
+    enabled: true
+    items:
+      item_1:
+        item: cherry
+        min_amount: 1
+        max_amount: 1
+        chance: 0.5
+
 fishing:
+
   shark:
     enabled: true
     biomes:
@@ -89,6 +101,7 @@ fishing:
 
 
 mobs:
+
   COW:
     enabled: true
     items:
@@ -110,6 +123,7 @@ mobs:
         min_amount: 1
         max_amount: 1
         chance: 25
+
   CHICKEN:
     enabled: true
     items:
@@ -123,6 +137,7 @@ mobs:
         min_amount: 1
         max_amount: 2
         chance: 15
+
   FROG:
     enabled: true
     items:
@@ -139,6 +154,7 @@ mobs:
         min_amount: 2
         max_amount: 4
         chance: 50
+
   SQUID:
     enabled: true
     items:

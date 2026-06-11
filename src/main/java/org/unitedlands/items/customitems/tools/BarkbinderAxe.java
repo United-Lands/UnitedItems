@@ -9,14 +9,13 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class BarkbinderAxe extends CustomTool {
 
-    public BarkbinderAxe(Plugin plugin) {
+    public BarkbinderAxe() {
     }
 
     private static final Map<Material, Material> STRIPPED_TO_UNSTRIPPED = new HashMap<>();
