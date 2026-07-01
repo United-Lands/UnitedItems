@@ -32,7 +32,6 @@ import org.unitedlands.utils.Logger;
 
 import com.gamingmesh.jobs.Jobs;
 import com.gamingmesh.jobs.actions.ItemActionInfo;
-import com.gamingmesh.jobs.commands.list.points;
 import com.gamingmesh.jobs.container.ActionType;
 
 import net.kyori.adventure.text.Component;
