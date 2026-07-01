@@ -99,6 +99,7 @@ fishing:
         max_amount: 1
         chance: 15
 
+# For valid spawn-reasons see https://jd.papermc.io/paper/1.21.11/org/bukkit/event/entity/CreatureSpawnEvent.SpawnReason.html
 
 mobs:
 
@@ -110,6 +111,9 @@ mobs:
         min_amount: 1
         max_amount: 3
         chance: 30
+    spawn-reasons:
+      - NATURAL
+      - SPAWNER
   PIG:
     enabled: true
     items:

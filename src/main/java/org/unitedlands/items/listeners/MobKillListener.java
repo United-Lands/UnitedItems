@@ -66,6 +66,11 @@ public class MobKillListener implements Listener {
             if (!entry.biomes().contains(biome))
                 return;
         }
+        if (entry.spawnReasons() != null && !entry.spawnReasons().isEmpty()) {
+            var spawnReason = event.getEntity().getEntitySpawnReason();
+            if (!entry.spawnReasons().contains(spawnReason))
+                return;
+        }
 
         for (LootConfig.LootItem lootItem : entry.items()) {
             if (random.nextDouble() * 100 <= lootItem.chance()) {

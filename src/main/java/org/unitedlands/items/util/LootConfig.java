@@ -4,6 +4,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.unitedlands.items.UnitedItems;
 import org.unitedlands.utils.Logger;
 
@@ -17,7 +18,7 @@ public class LootConfig {
     public record LootItem(String itemId, int minAmount, int maxAmount, double chance) {
     }
 
-    public record LootEntry(String key, boolean enabled, Set<Biome> biomes, List<LootItem> items) {
+    public record LootEntry(String key, boolean enabled, Set<Biome> biomes, List<LootItem> items, Set<SpawnReason> spawnReasons) {
     }
 
     private final Map<String, LootEntry> entries = new LinkedHashMap<>();
@@ -70,7 +71,17 @@ public class LootConfig {
                 }
             }
 
-            entries.put(key, new LootEntry(key, enabled, biomes, items));
+            Set<SpawnReason> spawnReasons = new HashSet<>();
+            for (String spawnReasonName : entrySection.getStringList("spawn-reasons")) {
+                try {
+                    var spawnReason = SpawnReason.valueOf(spawnReasonName);
+                    spawnReasons.add(spawnReason);
+                } catch (Exception ex) {
+                    Logger.logWarning("Unknown spawn reason '" + spawnReasonName + "' in spawn-reasons for " + key, "UnitedItems");
+                }
+            }
+
+            entries.put(key, new LootEntry(key, enabled, biomes, items, spawnReasons));
         }
     }
 
