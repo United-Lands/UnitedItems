@@ -57,11 +57,13 @@ public class MobKillListener implements Listener {
 
         Biome biome = event.getEntity().getLocation().getBlock().getBiome();
 
-        List<LootConfig.LootItem> winners = new ArrayList<>();
         var entry = mobLootMap.get(entityType);
 
         if (!entry.enabled())
             return;
+
+        List<LootConfig.LootItem> winners = new ArrayList<>();
+
         if (entry.biomes() != null && !entry.biomes().isEmpty()) {
             if (!entry.biomes().contains(biome))
                 return;
@@ -70,6 +72,9 @@ public class MobKillListener implements Listener {
             var spawnReason = event.getEntity().getEntitySpawnReason();
             if (!entry.spawnReasons().contains(spawnReason))
                 return;
+        }
+        if (entry.disableVanillaDrops()) {
+            event.getDrops().clear();
         }
 
         for (LootConfig.LootItem lootItem : entry.items()) {

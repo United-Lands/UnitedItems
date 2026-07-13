@@ -105,6 +105,7 @@ mobs:
 
   COW:
     enabled: true
+    disable-vanilla-drops: false
     items:
       item_1:
         item: ribs
@@ -116,6 +117,7 @@ mobs:
       - SPAWNER
   PIG:
     enabled: true
+    disable-vanilla-drops: false
     items:
       item_1:
         item: bacon
@@ -130,6 +132,7 @@ mobs:
 
   CHICKEN:
     enabled: true
+    disable-vanilla-drops: false
     items:
       item_1:
         item: drumstick
@@ -144,6 +147,7 @@ mobs:
 
   FROG:
     enabled: true
+    disable-vanilla-drops: false
     items:
       item_1:
         item: frog_legs
@@ -152,6 +156,7 @@ mobs:
         chance: 30
   SHEEP:
     enabled: true
+    disable-vanilla-drops: false
     items:
       item_1:
         item: lambchops
@@ -161,6 +166,7 @@ mobs:
 
   SQUID:
     enabled: true
+    disable-vanilla-drops: false
     items:
       item_1:
         item: squid
