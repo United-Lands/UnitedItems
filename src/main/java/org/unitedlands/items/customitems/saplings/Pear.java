@@ -14,7 +14,7 @@ public class Pear extends CustomSapling {
                 Material.OAK_SAPLING,
                 Material.OAK_LOG, null, true,
                 Material.PAPER, "OAK_LEAVES", "pear_leaves_fruited", false,
-                0.25, Set.of(Biome.FOREST, Biome.PLAINS, Biome.FLOWER_FOREST, Biome.BIRCH_FOREST));
+                0.25, Set.of(Biome.FOREST, Biome.PLAINS, Biome.FLOWER_FOREST, Biome.BIRCH_FOREST, Biome.CHERRY_GROVE));
     }
 
     @Override
