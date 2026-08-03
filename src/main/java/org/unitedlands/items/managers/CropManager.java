@@ -201,6 +201,13 @@ public class CropManager implements Listener {
         if (!dataManager.hasCrop(loc))
             return;
 
+        // Check if the player has permission to break.
+        Player player = event.getPlayer();
+        if (!permissionsManager.canInteract(player, event.getBlock())) {
+            event.setCancelled(true);
+            return;
+        }
+
         CustomCrop crop = dataManager.getCrop(loc);
         int growthStage = dataManager.getCropStage(loc);
 
