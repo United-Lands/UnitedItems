@@ -14,9 +14,11 @@ import org.unitedlands.items.util.LootConfig.LootEntry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class MobKillListener implements Listener {
 
@@ -73,8 +75,9 @@ public class MobKillListener implements Listener {
             if (!entry.spawnReasons().contains(spawnReason))
                 return;
         }
-        if (entry.disableVanillaDrops()) {
-            event.getDrops().clear();
+        if (entry.disabledVanillaDrops() != null && !entry.disabledVanillaDrops().isEmpty()) {
+            Set<String> disabledDrops = new HashSet<>(entry.disabledVanillaDrops());
+            event.getDrops().removeIf(drop -> disabledDrops.contains(drop.getType().toString()));
         }
 
         for (LootConfig.LootItem lootItem : entry.items()) {

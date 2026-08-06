@@ -18,7 +18,7 @@ public class LootConfig {
     public record LootItem(String itemId, int minAmount, int maxAmount, double chance) {
     }
 
-    public record LootEntry(String key, boolean enabled, boolean disableVanillaDrops, Set<Biome> biomes, List<LootItem> items, Set<SpawnReason> spawnReasons) {
+    public record LootEntry(String key, boolean enabled, List<String> disabledVanillaDrops, Set<Biome> biomes, List<LootItem> items, Set<SpawnReason> spawnReasons) {
     }
 
     private final Map<String, LootEntry> entries = new LinkedHashMap<>();
@@ -41,7 +41,8 @@ public class LootConfig {
                 continue;
 
             boolean enabled = entrySection.getBoolean("enabled", true);
-            boolean disableVanillaDrops = entrySection.getBoolean("disable-vanilla-drops", false);
+
+            List<String> disableVanillaDrops = entrySection.getStringList("disabled-vanilla-drops");
 
             Set<Biome> biomes = new HashSet<>();
             Registry<Biome> biomeRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME);

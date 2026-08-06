@@ -51,6 +51,7 @@ public class ToolManager implements Listener {
         toolSets.put("creeper_rocket", new CreeperRocket(plugin));
         toolSets.put("kraken_sabre", new KrakenSabre(plugin));
         toolSets.put("banana_sabre", new BananaSabre(plugin));
+        toolSets.put("musket", new Musket(plugin));
     }
 
     // Detect if the player is holding a registered tool.
