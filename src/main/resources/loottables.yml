@@ -105,7 +105,6 @@ mobs:
 
   COW:
     enabled: true
-    disable-vanilla-drops: false
     items:
       item_1:
         item: ribs
@@ -117,7 +116,6 @@ mobs:
       - SPAWNER
   PIG:
     enabled: true
-    disable-vanilla-drops: false
     items:
       item_1:
         item: bacon
@@ -132,7 +130,6 @@ mobs:
 
   CHICKEN:
     enabled: true
-    disable-vanilla-drops: false
     items:
       item_1:
         item: drumstick
@@ -147,7 +144,6 @@ mobs:
 
   FROG:
     enabled: true
-    disable-vanilla-drops: false
     items:
       item_1:
         item: frog_legs
@@ -156,7 +152,6 @@ mobs:
         chance: 30
   SHEEP:
     enabled: true
-    disable-vanilla-drops: false
     items:
       item_1:
         item: lambchops
@@ -166,10 +161,36 @@ mobs:
 
   SQUID:
     enabled: true
-    disable-vanilla-drops: false
     items:
       item_1:
         item: squid
         min_amount: 1
         max_amount: 1
         chance: 50
+
+  ZOMBIE:
+    enabled: true
+    disabled-vanilla-drops:
+      - ROTTEN_FLESH
+    spawn-reasons:
+      - CUSTOM
+      - COMMAND
+      - SPAWNER
+
+  SKELETON:
+    enabled: true
+    disabled-vanilla-drops:
+      - BONE
+    spawn-reasons:
+      - CUSTOM
+      - COMMAND
+      - SPAWNER
+
+  SPIDER:
+    enabled: true
+    disabled-vanilla-drops:
+      - SPIDER_EYE
+    spawn-reasons:
+      - CUSTOM
+      - COMMAND
+      - SPAWNER
