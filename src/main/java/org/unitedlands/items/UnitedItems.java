@@ -29,6 +29,7 @@ public class UnitedItems extends JavaPlugin {
     private DataManager dataManager;
     private CustomRecipeManager customRecipeManager;
     private BrewingManager brewingManager;
+    private ToolManager toolManager;
 
     private FishingListener fishingListener;
     private MobKillListener mobKillListener;
@@ -47,7 +48,7 @@ public class UnitedItems extends JavaPlugin {
         ArmourManager armourManager = new ArmourManager(this, getConfig());
         CropManager cropManager = new CropManager(permissionsManager, this, dataManager);
         potionManager = new PotionManager(this);
-        ToolManager toolManager = new ToolManager(this, permissionsManager);
+        toolManager = new ToolManager(this, permissionsManager);
         TreeManager treeManager = new TreeManager(this, permissionsManager, dataManager);
         voucherManager = new VoucherManager(this);
 
@@ -130,6 +131,8 @@ public class UnitedItems extends JavaPlugin {
     }
 
     public BlockBreakListener getBlockBreakListener() { return blockBreakListener; }
+
+    public ToolManager getToolManager() { return toolManager; }
 
     @Override
     public void onDisable() {

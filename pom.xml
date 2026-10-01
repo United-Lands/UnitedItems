@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>UnitedItems</artifactId>
-    <version>6.6.5</version>
+    <version>6.6.7</version>
     <dependencies>
         <dependency>
             <groupId>org.unitedlands</groupId>

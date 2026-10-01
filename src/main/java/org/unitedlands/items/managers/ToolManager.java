@@ -23,8 +23,7 @@ import org.unitedlands.UnitedLib;
 import org.unitedlands.items.customitems.tools.*;
 import org.unitedlands.items.util.PermissionsManager;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.bukkit.Bukkit.getScheduler;
 
@@ -37,7 +36,11 @@ public class ToolManager implements Listener {
     public ToolManager(Plugin plugin, PermissionsManager permissionsManager) {
         this.plugin = plugin;
         this.permissionsManager = permissionsManager;
+        reload();
+    }
 
+    public void reload() {
+        toolSets.clear();
         FileConfiguration config = plugin.getConfig();
 
         toolSets.put("gamemaster", new GamemasterTools(plugin, config));
@@ -52,6 +55,18 @@ public class ToolManager implements Listener {
         toolSets.put("kraken_sabre", new KrakenSabre(plugin));
         toolSets.put("banana_sabre", new BananaSabre(plugin));
         toolSets.put("musket", new Musket(plugin));
+
+        // Special registration for Halloween tools.
+        List<String> toolActivators = config.getStringList("items.halloween.tool-activators");
+        List<String> weaponActivators = config.getStringList("items.halloween.weapon-activators");
+        Set<String> halloweenItemIds = new HashSet<>(toolActivators);
+        halloweenItemIds.addAll(weaponActivators);
+
+        for (String id : halloweenItemIds) {
+            boolean triggersOnBlock = toolActivators.contains(id);
+            boolean triggersOnAttack = weaponActivators.contains(id);
+            toolSets.put(id, new HalloweenTools(plugin, triggersOnBlock, triggersOnAttack));
+        }
     }
 
     // Detect if the player is holding a registered tool.

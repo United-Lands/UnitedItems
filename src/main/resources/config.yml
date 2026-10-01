@@ -119,6 +119,71 @@ items:
     slip-chance: 1.0
     slip-strength: 5
 
+  halloween:
+    # Chance for a trick or treat roll to happen.
+    activation-chance: 0.15
+    # Controls the split between good and bad effects if activated.
+    # Values above 0.50 favor Treats. Values below 0.50 favor Tricks.
+    ability-balance: 0.50
+    # Which tools should activate which ability sets.
+    tool-activators:
+      - the_gouger
+      - the_cleaver
+      - the_extractor
+      - the_harvester
+    weapon-activators:
+      - the_carver
+      - the_cleaver
+    # Possible item (custom items supported) drops for the following abilities:
+    # Ooh! A piece of candy, Piñata.
+    treat-drops:
+      - candy1
+      - candy2
+      - candy3
+      - candy4
+      - candy5
+      - candy6
+      - candy7
+      - candy8
+      - candy9
+      - candy10
+      # Possible items to drop when Jack o'Pot triggers.
+    jack-o-pot-drops:
+      - DIAMOND
+      - EMERALD
+      - GOLD_INGOT
+    # Amount of EXP the Spirit Orbs treat should create.
+    spirit-orbs-exp: 50
+    # How many extra blocks of reach a player gets from the Long Limbed treat.
+    reach-amount: 3
+    # What sounds the Scary Sounds trick can play.
+    scary-sounds:
+      - "entity.creeper.primed"
+    # How many bats should the trick Bat Swarm spawns.
+    bat-swarm-amount: 5
+    # Negative potion effects applied for the following tricks:
+    # Grave Grasp.
+    # Duration is in ticks.
+    negative-potion-effects:
+     - type: slowness
+       duration: 60
+       amplifier: 3
+     - type: mining_fatigue
+       duration: 60
+       amplifier: 3
+    # Positive potion effects applied for the following tricks:
+    # Gourd Guard.
+    # Duration is in ticks.
+    positive-potion-effects:
+      - type: absorption
+        duration: 60
+        amplifier: 1
+    # Hunger and saturation restored by the Midnight Snack treat.
+    # Food has to be an integer.
+    midnight-snack-food: 6
+    # Saturation has to be a double.
+    midnight-snack-saturation: 4.0
+
 ##############################################
 # +----------------------------------------+ #
 # |                Vouchers                | #

@@ -42,6 +42,7 @@ public class UnitedItemsCommands implements CommandExecutor {
             plugin.getVoucherManager().reload();
             plugin.getCustomRecipeManager().loadRecipes();
             plugin.getBrewingManager().loadRecipes();
+            plugin.getToolManager().reload();
 
             plugin.getFishingListener().reloadLootConfig();
             plugin.getMobKillListener().reloadLootConfig();
