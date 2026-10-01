@@ -52,7 +52,7 @@ public class MobKillListener implements Listener {
                 || !(event.getDamageSource().getCausingEntity() instanceof Player))
             return;
 
-        var entityType = event.getEntityType().toString();
+        var entityType = UnitedLib.getInstance().getMobFactory().getMobType(event.getEntity());
 
         if (!mobLootMap.containsKey(entityType))
             return;
