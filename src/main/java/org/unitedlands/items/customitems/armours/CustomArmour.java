@@ -3,6 +3,9 @@ package org.unitedlands.items.customitems.armours;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Collections;
@@ -27,4 +30,19 @@ public abstract class CustomArmour {
     public void handleExpPickup(Player player, ExperienceOrb experienceOrb) {
     }
 
+    // Handle resurrect logic for the armour.
+    public void handleResurrect(Player player, EntityResurrectEvent event) {
+    }
+
+    // Handle respawn logic for the armour.
+    public void handleRespawn(Player player) {
+    }
+
+    // Handle entity targeting logic for the armour.
+    public void handleTarget(Player player, EntityTargetLivingEntityEvent event) {
+    }
+
+    // Handle entity death (mob kill) logic for the armour.
+    public void handleMobKill(Player killer, EntityDeathEvent event) {
+    }
 }

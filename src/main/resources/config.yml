@@ -184,6 +184,32 @@ items:
     # Saturation has to be a double.
     midnight-snack-saturation: 4.0
 
+necromancer-armour:
+  # How many revives a player can get from the armour before dying.
+  max-revives: 1
+  # List of mobs that will ignore a player in Necromancer armour.
+  ignored-mobs:
+    - CAMEL_HUSK
+    - DROWNED
+    - ZOGLIN
+    - ZOMBIE
+    - ZOMBIE_HORSE
+    - ZOMBIE_NAUTILUS
+    - ZOMBIE_VILLAGER
+    - ZOMBIFIED_PIGLIN
+    - BOGGED
+    - PARCHED
+    - SKELETON
+    - SKELETON_HORSE
+    - STRAY
+    - WITHER_SKELETON
+    - PHANTOM
+  # Possible assistants that can spawn when a wearer kills an entity.
+  assistants:
+    Necromancer_Assistant:
+      spawn-chance: 0.25
+      amount: 1
+
 ##############################################
 # +----------------------------------------+ #
 # |                Vouchers                | #

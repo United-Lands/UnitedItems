@@ -4,33 +4,32 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.unitedlands.UnitedLib;
 import org.unitedlands.items.UnitedItems;
-import org.unitedlands.items.customitems.armours.CustomArmour;
-import org.unitedlands.items.customitems.armours.GamemasterArmour;
-import org.unitedlands.items.customitems.armours.KrakenArmour;
-import org.unitedlands.items.customitems.armours.NutcrackerArmour;
+import org.unitedlands.items.customitems.armours.*;
 import org.unitedlands.items.util.ItemUpdater;
 import org.unitedlands.items.util.MessageProvider;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.bukkit.Bukkit.getScheduler;
 
 public class ArmourManager implements Listener {
 
     private final Map<String, CustomArmour> armourSets = new HashMap<>();
+    private final Map<UUID, CustomArmour> activeArmourCache = new HashMap<>();
     private final UnitedItems plugin;
     private static final int ONE_YEAR_TICKS = 630720000;
 
@@ -39,6 +38,7 @@ public class ArmourManager implements Listener {
         armourSets.put("nutcracker", new NutcrackerArmour());
         armourSets.put("gamemaster", new GamemasterArmour(plugin, config));
         armourSets.put("kraken", new KrakenArmour(plugin, config));
+        armourSets.put("necromancer", new NecromancerArmour(plugin, config));
     }
 
     // Detect if the player is wearing a full set of a registered armour.
@@ -82,28 +82,28 @@ public class ArmourManager implements Listener {
         return false;
     }
 
-    // Apply effects if armour is worn.
+    // Apply effects if full set is worn.
     private void applyEffectsIfWearingArmor(Player player) {
         CustomArmour armour = detectArmourSet(player);
+        removeAllEffects(player);
+
+        // Use cached sets instead of querying each individual piece every time.
         if (armour != null) {
+            activeArmourCache.put(player.getUniqueId(), armour);
             armour.applyEffects(player);
         } else {
-            removeAllEffects(player);
+            activeArmourCache.remove(player.getUniqueId());
         }
     }
 
     // Remove effects if armour is removed.
     private void removeAllEffects(Player player) {
-        if (detectArmourSet(player) == null) {
-            // Remove only the potion effects that were applied by our custom armour.
-            for (CustomArmour armour : armourSets.values()) {
-                for (PotionEffectType effectType : armour.getAppliedEffects()) {
-                    if (player.hasPotionEffect(effectType)) {
-                        PotionEffect current = player.getPotionEffect(effectType);
-                        // Remove the effect the duration is above one year.
-                        if (current != null && current.getDuration() >= ONE_YEAR_TICKS) {
-                            player.removePotionEffect(effectType);
-                        }
+        for (CustomArmour armour : armourSets.values()) {
+            for (PotionEffectType effectType : armour.getAppliedEffects()) {
+                if (player.hasPotionEffect(effectType)) {
+                    PotionEffect current = player.getPotionEffect(effectType);
+                    if (current != null && current.getDuration() >= ONE_YEAR_TICKS) {
+                        player.removePotionEffect(effectType);
                     }
                 }
             }
@@ -116,7 +116,6 @@ public class ArmourManager implements Listener {
 
     private void autoUpdateArmour(Player player) {
         MessageProvider messageProvider = UnitedItems.getMessageProvider();
-
         var inv = player.getInventory();
         ItemStack helmet = inv.getHelmet();
         ItemStack chest = inv.getChestplate();
@@ -128,27 +127,17 @@ public class ArmourManager implements Listener {
         ItemStack newLegs = ItemUpdater.updateItem(plugin, messageProvider, player, legs, false);
         ItemStack newBoots = ItemUpdater.updateItem(plugin, messageProvider, player, boots, false);
 
-        if (newHelmet != helmet) {
-            inv.setHelmet(newHelmet);
-        }
-        if (newChest != chest) {
-            inv.setChestplate(newChest);
-        }
-        if (newLegs != legs) {
-            inv.setLeggings(newLegs);
-        }
-        if (newBoots != boots) {
-            inv.setBoots(newBoots);
-        }
+        if (newHelmet != helmet) inv.setHelmet(newHelmet);
+        if (newChest != chest) inv.setChestplate(newChest);
+        if (newLegs != legs) inv.setLeggings(newLegs);
+        if (newBoots != boots) inv.setBoots(newBoots);
     }
 
     @EventHandler
     // Check player damage events for use of custom armour.
     public void handlePlayerDamage(EntityDamageEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
-        CustomArmour armour = detectArmourSet(player);
+        if (!(event.getEntity() instanceof Player player)) return;
+        CustomArmour armour = activeArmourCache.get(player.getUniqueId());
         if (armour != null) {
             armour.handlePlayerDamage(player, event);
         }
@@ -158,48 +147,72 @@ public class ArmourManager implements Listener {
     // Handle experience pickups.
     public void handleExpPickup(PlayerPickupExperienceEvent event) {
         Player player = event.getPlayer();
-        ExperienceOrb orb = event.getExperienceOrb();
-        CustomArmour armour = detectArmourSet(player);
+        CustomArmour armour = activeArmourCache.get(player.getUniqueId());
         if (armour != null) {
-            armour.handleExpPickup(player, orb);
+            armour.handleExpPickup(player, event.getExperienceOrb());
         }
     }
-
     @EventHandler
     // Handle armour changes.
     public void onPlayerArmorChange(PlayerArmorChangeEvent event) {
         Player player = event.getPlayer();
         getScheduler().runTask(plugin, () -> {
-            if (autoUpdateArmourToggle()) {
-                autoUpdateArmour(player);
-            }
-            applyEffectsIfWearingArmor(player);
-        });
-    }
-    @EventHandler
-    // Apply or remove effects when a player joins.
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        getScheduler().runTask(plugin, () -> {
-            if (autoUpdateArmourToggle()) {
-                autoUpdateArmour(player);
-            }
+            if (autoUpdateArmourToggle()) autoUpdateArmour(player);
             applyEffectsIfWearingArmor(player);
         });
     }
 
     @EventHandler
-    // Check if the armour has broken when taking damage.
-    public void onEntityDamage(EntityDamageEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
+    // Apply or remove effects when a player joins.
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
         getScheduler().runTask(plugin, () -> {
-            if (autoUpdateArmourToggle()) {
-                autoUpdateArmour(player);
-            }
+            if (autoUpdateArmourToggle()) autoUpdateArmour(player);
             applyEffectsIfWearingArmor(player);
         });
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        activeArmourCache.remove(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    // Check if the armour has broken when taking damage.
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        getScheduler().runTask(plugin, () -> {
+            if (autoUpdateArmourToggle()) autoUpdateArmour(player);
+            applyEffectsIfWearingArmor(player);
+        });
+    }
+
+    @EventHandler
+    // Check resurrect events for use of custom armour.
+    public void onEntityResurrect(EntityResurrectEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        CustomArmour armour = activeArmourCache.get(player.getUniqueId());
+        if (armour != null) {
+            armour.handleResurrect(player, event);
+        }
+    }
+
+    @EventHandler
+    public void onEntityTarget(EntityTargetLivingEntityEvent event) {
+        if (!(event.getTarget() instanceof Player player)) return;
+        CustomArmour armour = activeArmourCache.get(player.getUniqueId());
+        if (armour != null) {
+            armour.handleTarget(player, event);
+        }
+    }
+
+    @EventHandler
+    // Reset specific custom armour states on respawn.
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        for (CustomArmour armour : armourSets.values()) {
+            armour.handleRespawn(player);
+        }
     }
 
     @EventHandler
@@ -208,5 +221,16 @@ public class ArmourManager implements Listener {
         Player player = event.getEntity();
         detectArmourSet(player);
         getScheduler().runTask(plugin, () -> removeAllEffects(player));
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+        Player killer = event.getEntity().getKiller();
+        if (killer == null) return;
+
+        CustomArmour armour = activeArmourCache.get(killer.getUniqueId());
+        if (armour != null) {
+            armour.handleMobKill(killer, event);
+        }
     }
 }
